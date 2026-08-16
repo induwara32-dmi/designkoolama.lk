@@ -1,0 +1,14 @@
+{
+  "name": "designkoolama",
+  "private": true,
+  "version": "0.1.0",
+  "engines": { "node": ">=22 <25" },
+  "workspaces": ["frontend", "backend"],
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "build": "npm run build --workspaces",
+    "lint": "npm run lint --workspaces",
+    "typecheck": "npm run typecheck --workspaces",
+    "test": "npm run test --workspaces --if-present"
+  }
+}

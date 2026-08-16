@@ -1,0 +1,1 @@
+export default function Loading() { return <div className="site-container min-h-[65vh] animate-pulse py-24"><div className="h-4 w-28 rounded bg-orange/30"/><div className="mt-6 h-14 max-w-2xl rounded bg-white/10"/><div className="mt-4 h-5 max-w-lg rounded bg-white/5"/></div>; }
