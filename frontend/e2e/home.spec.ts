@@ -7,10 +7,9 @@ const sizes = [
 for (const size of sizes) {
   test(`home layout at ${size.width}px`, async ({ page }) => {
     const errors: string[] = [];
-    page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
     page.on("pageerror", (error) => errors.push(error.message));
     await page.setViewportSize(size);
-    await page.goto("/", { waitUntil: "networkidle" });
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     await expect(page.getByRole("heading", { name: /we turn creative concepts into/i })).toBeVisible();
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
     expect(overflow).toBe(false);

@@ -4,58 +4,42 @@ Updated: 2026-08-16
 
 ## Current phase
 
-Phase 2 — Shared Public UI and Home Page (complete)
+Phase 3 — Public Inner Pages (complete)
 
 ## Completed
 
-- Inspected the supplied overview and identified fourteen public page compositions.
-- Confirmed the workspace was empty and established the monorepo structure.
-- Defined architecture, delivery phases, working rules, and environment contract.
-- Added initial Next.js and NestJS application foundations.
-- Added central frontend design tokens and initial Prisma domain model.
-- Installed workspace dependencies and generated a reproducible lockfile.
-- Added a responsive reference-aligned Home foundation, shared header/footer, SEO routes, loading, error, and 404 states.
-- Added NestJS configuration validation, restricted CORS, Helmet, Swagger, response envelopes, and health endpoint.
+- Preserved the Phase 1 architecture and complete Phase 2 public Home experience.
+- Implemented responsive About, Contact, Get a Quote, Portfolio, and portfolio case-study pages.
+- Added typed About, Contact, and Portfolio content modules that remain isolated for later CMS replacement.
+- Added reusable inner-page heroes, information cards, project artwork, portfolio browser, FAQ, contact form, quote form, and case-study compositions.
+- Added working client-side category filters and reusable pagination state to the Portfolio browser.
+- Added six statically generated `/portfolio/[slug]` case studies with project-specific metadata and custom invalid-slug handling.
+- Added page-specific metadata, project sitemap entries, active navigation, correct Phase 3 links, and disabled speculative prefetches for future Phase 4 routes.
+- Added accessible validation, attachment guidance, FAQ disclosure controls, mobile navigation, focus treatment, and reduced-motion-aware Framer Motion transitions.
 
-## Verification
+## Phase 3 responsive and visual verification
 
-- `npm run lint`: passed with zero warnings.
-- `npm run typecheck`: passed for frontend and backend.
-- `npm run test`: passed (test harness configured; Phase 1 has no behavioral test suites yet).
-- `npm run build -w backend`: passed.
-- `npm run build -w frontend`: passed; `.next/BUILD_ID` generated.
-- `prisma validate`: passed with the documented PostgreSQL environment contract.
+- Verified About, Contact, Get a Quote, and Portfolio at 320, 375, 430, 768, 1024, 1280, 1440, and 1920 pixel widths.
+- Confirmed no horizontal overflow or uncaught page errors at all 32 page/width combinations.
+- Captured full-page Playwright screenshots in `frontend/test-results/screenshots/`.
+- Directly inspected About, Contact, and Portfolio screenshots at 375px and 1440px against all three supplied references.
 
-## Next
+## Phase 3 quality gates
 
-Phase 3 is ready but has not been started.
-
-## Phase 2 delivery
-
-- Implemented the complete reference order: navigation, hero, six services, statistics, featured work, testimonial, quote form, and four-column footer.
-- Added typed Home content for future CMS replacement and reusable public UI, form, motion, and feedback components.
-- Added active desktop navigation and an accessible animated mobile drawer with Escape handling, selection closing, focus states, and background scroll locking.
-- Added React Hook Form and Zod quote validation with a typed submission boundary. Persistence intentionally waits for the planned Phase 5 public API.
-- Added restrained Framer Motion entrances, scroll reveals, staggered cards, hover feedback, and reduced-motion support.
-- Added ten Playwright tests covering all responsive sizes, overflow, console/page errors, mobile navigation, form validation, and screenshot generation.
-
-## Phase 2 responsive and visual verification
-
-- Verified 320, 375, 430, 768, 1024, 1280, 1440, and 1920 pixel widths.
-- No horizontal overflow, console errors, or page errors were detected.
-- Captured full-page screenshots in `frontend/test-results/screenshots/` and directly inspected the 375px and 1440px results against the full-resolution reference.
-
-## Phase 2 quality gates
-
-- Lint passed with zero warnings.
+- Frontend lint passed with zero warnings.
 - Strict frontend and backend type checks passed.
-- 10 frontend Playwright tests passed; backend Jest regression command passed.
-- Frontend and backend production builds passed.
-- Prisma schema validation passed.
+- 47 frontend Playwright tests passed, including 32 Phase 3 responsive screenshots and all functional interactions.
+- Backend Jest regression command passed.
+- Frontend and backend production builds passed; six portfolio case-study paths are statically generated.
+- Prisma schema validation passed without schema changes.
 
 ## Temporary limitations
 
-- Portfolio artwork and the testimonial avatar were not supplied separately, so isolated gradient artwork and an initial avatar remain replaceable media placeholders.
-- Quote persistence awaits Phase 5 API integration.
-- Social URLs and production contact values remain typed temporary content.
-- The requested Git checkpoint could not be created because `.git` is read-only in this workspace.
+- Final portfolio photography/artwork and a founder portrait were not supplied separately, so code-native abstract project artwork and an initialed founder treatment remain replaceable assets.
+- The map remains a styled location panel pending an approved Google Maps embed/API key.
+- Quote and contact persistence intentionally remain behind typed unavailable service boundaries until the planned public API integration phase.
+- Social URLs, legal routes, package/service routes, and final production contact values remain future or owner-supplied content.
+
+## Next
+
+Phase 4 is ready to begin but has not been started.

@@ -9,4 +9,5 @@ coverage/
 backend/prisma/*.db
 playwright-report/
 test-results/
+phase3-run-results/
 *.tsbuildinfo

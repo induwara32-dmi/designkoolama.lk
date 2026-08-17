@@ -1,4 +1,4 @@
-export type QuoteSubmission = { fullName: string; email: string; phone: string; company?: string; deadline: string; preferredContact: "WhatsApp" | "Phone" | "Email"; service: string; budget?: string; projectDetails: string };
+export type QuoteSubmission = { fullName: string; email: string; phone: string; company?: string; deadline: string; preferredContact: "WhatsApp" | "Phone" | "Email"; service: string; budget?: string; projectDetails: string; attachment?: FileList };
 
 export interface QuoteSubmissionService { submit(payload: QuoteSubmission): Promise<void>; }
 
