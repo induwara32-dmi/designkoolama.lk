@@ -1,45 +1,61 @@
 # Project Status
 
-Updated: 2026-08-16
+Updated: 2026-08-17
 
 ## Current phase
 
-Phase 3 — Public Inner Pages (complete)
+Phase 4 — Public Services and Packages (complete)
 
-## Completed
+## Completed routes
 
-- Preserved the Phase 1 architecture and complete Phase 2 public Home experience.
-- Implemented responsive About, Contact, Get a Quote, Portfolio, and portfolio case-study pages.
-- Added typed About, Contact, and Portfolio content modules that remain isolated for later CMS replacement.
-- Added reusable inner-page heroes, information cards, project artwork, portfolio browser, FAQ, contact form, quote form, and case-study compositions.
-- Added working client-side category filters and reusable pagination state to the Portfolio browser.
-- Added six statically generated `/portfolio/[slug]` case studies with project-specific metadata and custom invalid-slug handling.
-- Added page-specific metadata, project sitemap entries, active navigation, correct Phase 3 links, and disabled speculative prefetches for future Phase 4 routes.
-- Added accessible validation, attachment guidance, FAQ disclosure controls, mobile navigation, focus treatment, and reduced-motion-aware Framer Motion transitions.
+- Services: `/services/brand-identity`, `/services/print-advertising`, `/services/social-media-design`, `/services/packaging-design`, `/services/merchandise-design`, and `/services/3d-design`.
+- Packages: `/packages`, `/packages/tutor`, `/packages/branding`, and `/packages/photography`.
+- Preserved all completed Phase 1–3 public routes and behavior.
 
-## Phase 3 responsive and visual verification
+## Service architecture
 
-- Verified About, Contact, Get a Quote, and Portfolio at 320, 375, 430, 768, 1024, 1280, 1440, and 1920 pixel widths.
-- Confirmed no horizontal overflow or uncaught page errors at all 32 page/width combinations.
-- Captured full-page Playwright screenshots in `frontend/test-results/screenshots/`.
-- Directly inspected About, Contact, and Portfolio screenshots at 375px and 1440px against all three supplied references.
+- Added a typed service content model for slugs, copy, deliverables, process steps, showcases, related services, SEO, and social metadata.
+- Added one statically generated dynamic service route with custom invalid-slug handling.
+- Added reusable service overview, deliverable, process, showcase, related-service, and quote CTA compositions.
+- Each service has distinct content and metadata while sharing the verified DesignKoolama visual system.
 
-## Phase 3 quality gates
+## Package architecture
 
-- Frontend lint passed with zero warnings.
+- Added typed package experiences and tiers covering category, name, subtitle, price, label, description, features, recommendation state, CTA, order, and active status.
+- Added a package category index and three statically generated package-detail routes.
+- Added reusable package cards, feature lists, recommendation badges, benefits, process sections, and custom-package CTAs.
+- Package and service CTAs use safe query parameters to preselect the quote service and package context without claiming persistence.
+
+## Navigation, accessibility, SEO, and motion
+
+- Updated nested active navigation behavior and verified Home service cards, footer services, package navigation, related services, and quote CTAs.
+- Added route-specific canonical, Open Graph, Twitter, title, and description metadata plus all Phase 4 sitemap entries.
+- Preserved semantic landmarks, heading order, visible focus states, keyboard controls, touch targets, reduced-motion behavior, and accessible recommendation labels.
+- Added restrained Framer Motion entrance, reveal, stagger, showcase, process, and pricing-card transitions.
+
+## Responsive and visual verification
+
+- Verified every Phase 4 route at 320, 375, 430, 768, 1024, 1280, 1440, and 1920 pixel widths.
+- Confirmed no horizontal overflow or uncaught page errors across all 80 Phase 4 route/width combinations.
+- Captured mobile and desktop screenshots for all ten Phase 4 designs in `frontend/test-results/screenshots/`.
+- Directly inspected representative service, package index, tiered package, and mobile package screenshots against the supplied fourteen-page overview reference.
+
+## Quality gates
+
+- Workspace lint passed with zero warnings.
 - Strict frontend and backend type checks passed.
-- 47 frontend Playwright tests passed, including 32 Phase 3 responsive screenshots and all functional interactions.
-- Backend Jest regression command passed.
-- Frontend and backend production builds passed; six portfolio case-study paths are statically generated.
-- Prisma schema validation passed without schema changes.
+- Full frontend Playwright suite passed: 132/132 tests.
+- Frontend production build passed with all six service and three package-detail paths statically generated.
+- Backend Jest regression command and production build passed.
+- Prisma schema validation passed; no backend or Prisma changes were made.
 
-## Temporary limitations
+## Remaining owner-supplied content
 
-- Final portfolio photography/artwork and a founder portrait were not supplied separately, so code-native abstract project artwork and an initialed founder treatment remain replaceable assets.
-- The map remains a styled location panel pending an approved Google Maps embed/API key.
-- Quote and contact persistence intentionally remain behind typed unavailable service boundaries until the planned public API integration phase.
-- Social URLs, legal routes, package/service routes, and final production contact values remain future or owner-supplied content.
+- Separate full-resolution Phase 4 Figma exports were not present; the original overview remains the available visual source.
+- Final service and package photography/artwork remains represented by replaceable code-native showcase treatments.
+- Package prices and descriptive copy are typed seed content and require owner approval before production publication.
+- Quote/contact persistence, legal routes, final social URLs, and production contact values remain future or owner-supplied work.
 
 ## Next
 
-Phase 4 is ready to begin but has not been started.
+Phase 5 is ready to begin but has not been started.
