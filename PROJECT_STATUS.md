@@ -1,8 +1,36 @@
 # Project Status
 
-Updated: 2026-08-17
+Updated: 2026-08-19
+
+## Current verification
+
+Phase 5 — Database and Public API Foundation is complete and verified against local PostgreSQL.
+
+- Applied the inspected non-destructive foundation migration.
+- Ran the approved-content seed twice and confirmed stable counts with no duplicates.
+- Verified 6 pages, 6 services, 6 projects, 3 package categories, 9 package tiers, 1 testimonial, and 1 public settings record.
+- Verified health/readiness, all public content families, detail reads, filtering/pagination, and invalid-slug 404 handling.
+- Verified uniquely marked contact and quote persistence, including quote service/package relations.
+- Verified real frontend API content with fallback disabled, success-after-persistence, validation errors, and API-unavailable states.
+- Prisma format/validation, lint, strict type checks, backend Jest, frontend/backend builds, and Playwright all pass. Playwright: 132/132.
+- Phase 6 was not started.
+
+## Earlier Phase 5 checkpoint (superseded by current verification)
+
+Phase 5 — Database and Public API Foundation is implemented in code. PostgreSQL deployment remains an environment step because no `DATABASE_URL` was available in this workspace.
+
+- Added the initial Prisma migration and idempotent approved-content seed.
+- Added public page, service, portfolio, package, testimonial, and setting APIs with published-only ordering, filtering, pagination, and 404 handling.
+- Added validated, rate-limited contact and quote persistence; attachment storage is explicitly deferred.
+- Connected production service, portfolio, case-study, and package routes plus contact/quote forms to the API. Typed fallback content is opt-in via `CONTENT_FALLBACK_ENABLED=true` only.
+- Added database readiness health reporting, API service tests, safe environment examples, and Phase 5 operations documentation.
+- Phase 6 was not started.
 
 ## Current phase
+
+Phase 5 — Database and Public API Foundation (complete)
+
+## Previous completed phase
 
 Phase 4 — Public Services and Packages (complete)
 

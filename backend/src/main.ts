@@ -3,6 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import helmet from "helmet";
+import { json } from "express";
 import { AppModule } from "./app.module";
 import { ResponseInterceptor } from "./common/interceptors/response.interceptor";
 
@@ -10,9 +11,16 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
   app.setGlobalPrefix("api/v1");
+  app.enableShutdownHooks();
   app.use(helmet());
+  app.use(json({ limit: "256kb" }));
+  const allowedOrigins = new Set([config.getOrThrow<string>("FRONTEND_URL")]);
+  if (config.get<string>("NODE_ENV") !== "production") {
+    allowedOrigins.add("http://localhost:3000");
+    allowedOrigins.add("http://127.0.0.1:3000");
+  }
   app.enableCors({
-    origin: config.getOrThrow<string>("FRONTEND_URL"),
+    origin: [...allowedOrigins],
     credentials: true,
     methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
   });

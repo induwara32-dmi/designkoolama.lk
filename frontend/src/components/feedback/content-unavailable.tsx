@@ -1,0 +1,2 @@
+import {AlertCircle} from "lucide-react";import {LinkButton} from "@/components/ui/button";
+export function ContentUnavailable(){return <section className="inner-hero"><div className="site-container max-w-2xl text-center"><AlertCircle className="mx-auto size-10 text-orange"/><h1 className="mt-6 text-4xl font-bold">Content temporarily unavailable</h1><p className="mt-4 text-secondary">We could not load the latest published content. Please try again shortly.</p><LinkButton href="/contact" className="mt-8">Contact Us</LinkButton></div></section>}

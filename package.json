@@ -10,5 +10,7 @@
     "lint": "npm run lint --workspaces",
     "typecheck": "npm run typecheck --workspaces",
     "test": "npm run test --workspaces --if-present"
+    ,"prisma:deploy": "prisma migrate deploy --schema backend/prisma/schema.prisma"
+    ,"prisma:seed": "ts-node backend/prisma/seed.ts"
   }
 }

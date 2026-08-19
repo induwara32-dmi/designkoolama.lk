@@ -106,6 +106,7 @@ model Page {
   publishedAt DateTime?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+  deletedAt   DateTime?
   sections    PageSection[]
   seo         SeoMetadata?
 
@@ -129,17 +130,19 @@ model PageSection {
 }
 
 model Service {
-  id           String             @id @default(uuid()) @db.Uuid
-  slug         String             @unique
-  name         String
-  summary      String
-  content      Json
-  status       ContentStatus      @default(DRAFT)
-  displayOrder Int                @default(0)
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
-  seo          SeoMetadata?
-  projects     PortfolioProject[]
+  id            String             @id @default(uuid()) @db.Uuid
+  slug          String             @unique
+  name          String
+  summary       String
+  content       Json
+  status        ContentStatus      @default(DRAFT)
+  displayOrder  Int                @default(0)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  deletedAt     DateTime?
+  seo           SeoMetadata?
+  projects      PortfolioProject[]
+  quoteRequests QuoteRequest[]
 
   @@index([status, displayOrder])
 }
@@ -169,6 +172,7 @@ model PortfolioProject {
   publishedAt  DateTime?
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt
+  deletedAt    DateTime?
   category     PortfolioCategory @relation(fields: [categoryId], references: [id])
   service      Service?          @relation(fields: [serviceId], references: [id])
   media        PortfolioMedia[]
@@ -195,6 +199,7 @@ model PackageCategory {
   name         String
   headline     String?
   description  String?
+  content      Json      @default("{}")
   displayOrder Int       @default(0)
   isActive     Boolean   @default(true)
   packages     Package[]
@@ -203,20 +208,24 @@ model PackageCategory {
 }
 
 model Package {
-  id           String           @id @default(uuid()) @db.Uuid
-  categoryId   String           @db.Uuid
-  name         String
-  subtitle     String?
-  price        Decimal?         @db.Decimal(12, 2)
-  currency     String           @default("LKR")
-  isPopular    Boolean          @default(false)
-  isActive     Boolean          @default(true)
-  status       ContentStatus    @default(DRAFT)
-  displayOrder Int              @default(0)
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
-  category     PackageCategory  @relation(fields: [categoryId], references: [id])
-  features     PackageFeature[]
+  id            String           @id @default(uuid()) @db.Uuid
+  slug          String           @unique
+  categoryId    String           @db.Uuid
+  name          String
+  subtitle      String?
+  description   String?
+  price         Decimal?         @db.Decimal(12, 2)
+  priceLabel    String?
+  currency      String           @default("LKR")
+  isPopular     Boolean          @default(false)
+  isActive      Boolean          @default(true)
+  status        ContentStatus    @default(DRAFT)
+  displayOrder  Int              @default(0)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  category      PackageCategory  @relation(fields: [categoryId], references: [id])
+  features      PackageFeature[]
+  quoteRequests QuoteRequest[]
 
   @@index([categoryId, status, displayOrder])
 }
@@ -279,6 +288,9 @@ model QuoteRequest {
   phone            String?
   company          String?
   serviceRequired  String
+  selectedPackage  String?
+  serviceId        String?           @db.Uuid
+  packageId        String?           @db.Uuid
   budget           String?
   deadline         DateTime?
   preferredContact String?
@@ -287,8 +299,12 @@ model QuoteRequest {
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   attachments      QuoteAttachment[]
+  service          Service?          @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  package          Package?          @relation(fields: [packageId], references: [id], onDelete: SetNull)
 
   @@index([status, createdAt])
+  @@index([serviceId])
+  @@index([packageId])
 }
 
 model QuoteAttachment {

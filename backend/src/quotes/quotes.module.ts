@@ -1,0 +1,2 @@
+import {Module} from "@nestjs/common";import {SubmissionRateLimitGuard} from "../common/guards/submission-rate-limit.guard";import {DeferredQuoteAttachmentProvider,QUOTE_ATTACHMENT_PROVIDER} from "./quote-attachment.provider";import {QuotesController} from "./quotes.controller";import {QuotesService} from "./quotes.service";
+@Module({controllers:[QuotesController],providers:[QuotesService,SubmissionRateLimitGuard,{provide:QUOTE_ATTACHMENT_PROVIDER,useClass:DeferredQuoteAttachmentProvider}]}) export class QuotesModule{}
