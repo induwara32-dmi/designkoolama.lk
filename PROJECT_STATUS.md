@@ -1,8 +1,20 @@
 # Project Status
 
-Updated: 2026-08-19
+Updated: 2026-08-22
 
 ## Current verification
+
+Phase 6 — Administrator Authentication and Dashboard is complete and verified against local PostgreSQL.
+
+- Added additive authentication migration `20260819093745_phase6_auth`; inspected and applied successfully with no Phase 5 data reset.
+- Added scrypt password hashing, signed short-lived access cookies, rotating opaque refresh cookies with keyed hashes, lockout/rate limiting, origin enforcement, reset-token lifecycle, session revocation, audit events, guards, roles, and a protected dashboard endpoint.
+- Provisioned the initial Super Admin through the explicit command and reran it to confirm idempotency without duplicate users or credential changes.
+- Added isolated no-index Admin Login, Forgot Password, Reset Password, Dashboard, Profile, and Security routes plus a responsive sidebar and controlled Phase 7 placeholders.
+- Live verification passes against PostgreSQL: successful and invalid login, protected-route rejection, HttpOnly cookie attributes, session-bound access, expiry handling, refresh rotation/replay rejection, reload persistence, dashboard counts, profile retrieval, logout, logout-all, password change with owner-password restoration, development reset delivery/single use, session listing/revocation, and persisted authentication state.
+- Safe verification passes: Prisma format/validation/status (no pending migrations), zero-warning frontend/backend lint, strict frontend/backend types, backend Jest 20/20, frontend/backend production builds, and the complete Playwright suite 156/156 (132 public regressions plus 24 Phase 6 Admin tests).
+- Admin Login was verified without horizontal overflow at 320, 375, 430, 768, 1024, 1280, 1440, and 1920 pixels. Mobile and desktop screenshots were directly inspected; Admin routes are noindex and excluded from public navigation/footer/sitemap.
+- The development reset provider was verified as opt-in and unable to deliver when configured as production.
+- Phase 7 has not started.
 
 Phase 5 — Database and Public API Foundation is complete and verified against local PostgreSQL.
 
@@ -28,7 +40,7 @@ Phase 5 — Database and Public API Foundation is implemented in code. PostgreSQ
 
 ## Current phase
 
-Phase 5 — Database and Public API Foundation (complete)
+Phase 6 — Administrator Authentication and Dashboard (complete)
 
 ## Previous completed phase
 

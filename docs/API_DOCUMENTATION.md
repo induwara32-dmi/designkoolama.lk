@@ -9,3 +9,11 @@ Phase 5 read routes are `/public/pages/:slug`, `/public/services`, `/public/serv
 `POST /contact` and `POST /quotes` persist validated submissions. Both include an empty `website` honeypot and are limited to five submissions per IP per minute. Quote attachment storage is explicitly deferred.
 
 Local PostgreSQL verification on 2026-08-19 confirmed liveness/readiness, every public content family, detail reads, pagination, invalid-slug 404 responses, contact persistence, quote persistence, and linked quote service/package references. Browser verification used the real API with fallback disabled and confirmed validation, success-after-persistence, and API-unavailable states.
+
+## Phase 6 administrator API
+
+All routes use the `/api/v1/admin` prefix. Authentication routes are `POST /auth/login`, `/auth/refresh`, `/auth/logout`, `/auth/logout-all`, `/auth/forgot-password`, `/auth/reset-password`, and `/auth/change-password`; reads are `GET /auth/me`, `GET /auth/sessions`, and `DELETE /auth/sessions/:id`. `GET /dashboard` returns protected aggregate counts and privacy-minimised recent-submission previews.
+
+Access and rotating refresh credentials are sent only as HttpOnly cookies. Mutating routes enforce the configured admin origin. Refresh tokens and password-reset tokens are stored only as keyed hashes. Forgot-password responses do not disclose account existence. The development reset-delivery provider is opt-in and is forcibly disabled in production; it never returns a reset token through the API.
+
+Local Phase 6 verification confirmed real PostgreSQL login, generic invalid-credential rejection, protected-route enforcement, session-bound access cookies, refresh rotation and replay rejection, logout/logout-all, dashboard aggregates, profile reads, password change, one-time development reset, session listing/revocation, and persisted revocation/rotation/audit state. Verification restores the owner-configured password and emits no credentials, token values, or cookie values.

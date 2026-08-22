@@ -5,7 +5,7 @@ export default defineConfig({
   workers: 3,
   outputDir: "./phase3-run-results",
   use: { baseURL: "http://127.0.0.1:3000", trace: "retain-on-failure" },
-  webServer: [
+  webServer: process.env.PLAYWRIGHT_EXTERNAL_SERVERS === "true" ? undefined : [
     {
       command: "node backend/dist/main.js",
       cwd: "..",

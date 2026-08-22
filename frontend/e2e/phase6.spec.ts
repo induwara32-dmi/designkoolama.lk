@@ -1,0 +1,25 @@
+import { expect, test } from "@playwright/test";
+
+const profile={id:"test-admin",email:"admin@example.test",displayName:"Test Admin",status:"ACTIVE",lastLoginAt:new Date().toISOString(),roles:["SUPER_ADMIN"]};
+async function mockAdmin(page: import("@playwright/test").Page, initialAuthenticated=false){
+  let authenticated=initialAuthenticated;
+  await page.route("**/api/v1/admin/**",async route=>{
+    const path=new URL(route.request().url()).pathname;
+    if(path.endsWith("/auth/me"))return authenticated?route.fulfill({json:{data:profile}}):route.fulfill({status:401,json:{message:"Authentication required"}});
+    if(path.endsWith("/auth/login")){authenticated=true;return route.fulfill({json:{data:{admin:profile}}});}
+    if(path.endsWith("/dashboard"))return route.fulfill({json:{data:{counts:{portfolioProjects:6,services:6,activePackageTiers:9,newQuoteRequests:1,newContactMessages:1,publishedTestimonials:1},recentQuotes:[],recentContacts:[]}}});
+    if(path.endsWith("/auth/sessions"))return route.fulfill({json:{data:[]}});
+    return route.fulfill({json:{data:{loggedOut:true}}});
+  });
+}
+
+test("admin login is isolated from public chrome and validates fields",async({page})=>{await page.goto("/admin/login");await expect(page.getByRole("heading",{name:"Welcome back"})).toBeVisible();await expect(page.locator("header")).toHaveCount(0);await expect(page.locator("footer")).toHaveCount(0);await page.getByRole("button",{name:"Sign in"}).click();await expect(page.locator("input:invalid").first()).toBeVisible()});
+test("invalid login shows a safe error",async({page})=>{await page.route("**/api/v1/admin/auth/login",route=>route.fulfill({status:401,json:{message:"Invalid email or password"}}));await page.goto("/admin/login");await page.getByLabel("Email address").fill("admin@example.test");await page.getByLabel("Password").fill("Incorrect!123");await page.getByRole("button",{name:"Sign in"}).click();await expect(page.locator("p[role=alert]")).toHaveText("Invalid email or password")});
+test("successful login reaches protected dashboard data",async({page})=>{await mockAdmin(page);await page.goto("/admin/login");await page.getByLabel("Email address").fill("admin@example.test");await page.getByLabel("Password").fill("Correct!Password42");await page.getByRole("button",{name:"Sign in"}).click();await expect(page).toHaveURL(/admin\/dashboard/);await expect(page.getByRole("heading",{name:"Dashboard"})).toBeVisible();await expect(page.getByText("portfolio Projects")).toBeVisible()});
+test("authenticated admins are redirected away from login",async({page})=>{await page.route("**/api/v1/admin/auth/me",route=>route.fulfill({json:{data:profile}}));await page.goto("/admin/login");await expect(page).toHaveURL(/admin\/dashboard/)});
+test("forgot password always presents generic confirmation",async({page})=>{await page.route("**/api/v1/admin/auth/forgot-password",route=>route.fulfill({json:{data:{message:"If an eligible account exists, password reset instructions will be sent."}}}));await page.goto("/admin/forgot-password");await page.getByLabel("Email address").fill("unknown@example.test");await page.getByRole("button",{name:"Request reset"}).click();await expect(page.getByRole("status")).toContainText("If an eligible account exists")});
+test("admin routes are not present in public navigation or sitemap",async({page,request})=>{await page.goto("/");await expect(page.locator('header a[href^="/admin"], footer a[href^="/admin"]')).toHaveCount(0);const sitemap=await (await request.get("/sitemap.xml")).text();expect(sitemap).not.toContain("/admin")});
+for(const width of [320,375,430,768,1024,1280,1440,1920])test(`admin login has no overflow at ${width}px`,async({page})=>{await page.setViewportSize({width,height:900});await page.goto("/admin/login");const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth);expect(overflow).toBe(false);if(width===375||width===1440)await page.screenshot({path:`test-results/screenshots/phase6-admin-login-${width}.png`,fullPage:true})});
+for(const width of [320,375,430,768,1024,1280,1440,1920])test(`admin dashboard has no overflow at ${width}px`,async({page})=>{await mockAdmin(page,true);await page.setViewportSize({width,height:900});await page.goto("/admin/dashboard");await expect(page.getByRole("heading",{name:"Dashboard"})).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth)).toBe(false)});
+test("mobile admin drawer opens and closes",async({page})=>{await mockAdmin(page,true);await page.setViewportSize({width:375,height:812});await page.goto("/admin/dashboard");await page.getByRole("button",{name:"Open navigation"}).click();await expect(page.getByRole("navigation",{name:"Admin navigation"})).toBeVisible();await page.getByRole("button",{name:"Close navigation"}).first().click()});
+test("reduced motion preference keeps admin page usable",async({page})=>{await page.emulateMedia({reducedMotion:"reduce"});await page.goto("/admin/login");await expect(page.getByRole("button",{name:"Sign in"})).toBeVisible()});

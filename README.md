@@ -21,4 +21,8 @@ The frontend runs on `http://localhost:3000`; the API runs on `http://localhost:
 
 Set `API_URL` for server-side content reads and `NEXT_PUBLIC_API_URL` for browser submissions. `CONTENT_FALLBACK_ENABLED=true` is an explicit development/test fallback only and is disabled by default.
 
+## Administrator access
+
+Admin pages live below `/admin` and are excluded from public navigation and indexing. Configure the Phase 6 variables documented in `.env.example`, apply migrations from the repository root with `npm run prisma:deploy`, then explicitly run `npm run admin:provision`. Provisioning is idempotent and never overwrites an existing password. After the first login, change the initial password from `/admin/security`; this revokes all active sessions.
+
 See `PROJECT_PLAN.md`, `SYSTEM_ARCHITECTURE.md`, and `docs/DEPLOYMENT.md` for implementation and operations details.

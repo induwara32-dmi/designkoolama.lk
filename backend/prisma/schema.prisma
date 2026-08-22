@@ -35,18 +35,22 @@ enum MediaKind {
 }
 
 model AdminUser {
-  id           String           @id @default(uuid()) @db.Uuid
-  email        String           @unique
-  passwordHash String
-  displayName  String
-  status       AccountStatus    @default(INVITED)
-  lastLoginAt  DateTime?
-  deletedAt    DateTime?
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
-  roles        AdminUserRole[]
-  sessions     RefreshSession[]
-  activities   ActivityLog[]
+  id                String               @id @default(uuid()) @db.Uuid
+  email             String               @unique
+  passwordHash      String
+  displayName       String
+  status            AccountStatus        @default(INVITED)
+  failedLoginCount  Int                  @default(0)
+  lockedUntil       DateTime?
+  lastLoginAt       DateTime?
+  passwordChangedAt DateTime?
+  deletedAt         DateTime?
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  roles             AdminUserRole[]
+  sessions          RefreshSession[]
+  activities        ActivityLog[]
+  resetTokens       PasswordResetToken[]
 }
 
 model Role {
@@ -85,13 +89,27 @@ model RolePermission {
 }
 
 model RefreshSession {
+  id           String    @id @default(uuid()) @db.Uuid
+  userId       String    @db.Uuid
+  tokenHash    String    @unique
+  userAgent    String?
+  ipAddress    String?
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  lastUsedAt   DateTime?
+  replacedById String?   @db.Uuid
+  createdAt    DateTime  @default(now())
+  user         AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+}
+
+model PasswordResetToken {
   id        String    @id @default(uuid()) @db.Uuid
   userId    String    @db.Uuid
   tokenHash String    @unique
-  userAgent String?
-  ipAddress String?
   expiresAt DateTime
-  revokedAt DateTime?
+  usedAt    DateTime?
   createdAt DateTime  @default(now())
   user      AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
 

@@ -9,7 +9,7 @@ export default tseslint.config(
   ...tseslint.configs.recommendedTypeChecked,
   prettierRecommended,
   {
-    languageOptions: { globals: { ...globals.node, ...globals.jest }, parserOptions: { projectService: true, tsconfigRootDir: import.meta.dirname } },
+    languageOptions: { globals: { ...globals.node, ...globals.jest }, parserOptions: { projectService: { allowDefaultProject: ["scripts/*.ts", "prisma/*.ts"] }, tsconfigRootDir: import.meta.dirname } },
     rules: { "@typescript-eslint/no-explicit-any": "error", "prettier/prettier": "off" },
   },
   { files: ["test/**/*.ts"], rules: { "@typescript-eslint/no-unsafe-assignment": "off" } },

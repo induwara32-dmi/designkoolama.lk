@@ -7,6 +7,7 @@ import { PublicContentModule } from "./public-content/public-content.module";
 import { ContactModule } from "./contact/contact.module";
 import { QuotesModule } from "./quotes/quotes.module";
 import { resolve } from "node:path";
+import { AdminAuthModule } from "./admin-auth/admin-auth.module";
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { resolve } from "node:path";
     PublicContentModule,
     ContactModule,
     QuotesModule,
+    AdminAuthModule,
   ],
 })
 export class AppModule {}

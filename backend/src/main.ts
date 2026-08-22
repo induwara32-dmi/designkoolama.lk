@@ -15,6 +15,8 @@ async function bootstrap() {
   app.use(helmet());
   app.use(json({ limit: "256kb" }));
   const allowedOrigins = new Set([config.getOrThrow<string>("FRONTEND_URL")]);
+  const adminOrigin = config.get<string>("ADMIN_FRONTEND_URL");
+  if (adminOrigin) allowedOrigins.add(adminOrigin);
   if (config.get<string>("NODE_ENV") !== "production") {
     allowedOrigins.add("http://localhost:3000");
     allowedOrigins.add("http://127.0.0.1:3000");
