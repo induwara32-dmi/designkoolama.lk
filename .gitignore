@@ -10,4 +10,5 @@ backend/prisma/*.db
 playwright-report/
 test-results/
 phase3-run-results/
+phase10-run-results/
 *.tsbuildinfo

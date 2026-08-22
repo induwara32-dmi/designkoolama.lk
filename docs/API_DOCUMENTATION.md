@@ -46,3 +46,7 @@ All routes use the `/api/v1/admin` prefix. Authentication routes are `POST /auth
 Access and rotating refresh credentials are sent only as HttpOnly cookies. Mutating routes enforce the configured admin origin. Refresh tokens and password-reset tokens are stored only as keyed hashes. Forgot-password responses do not disclose account existence. The development reset-delivery provider is opt-in and is forcibly disabled in production; it never returns a reset token through the API.
 
 Local Phase 6 verification confirmed real PostgreSQL login, generic invalid-credential rejection, protected-route enforcement, session-bound access cookies, refresh rotation and replay rejection, logout/logout-all, dashboard aggregates, profile reads, password change, one-time development reset, session listing/revocation, and persisted revocation/rotation/audit state. Verification restores the owner-configured password and emits no credentials, token values, or cookie values.
+
+## Phase 10 production exposure
+
+Phase 10 adds no REST routes and changes no response envelope. Swagger remains available outside production. In production it is not mounted unless `SWAGGER_ENABLED=true` is explicitly supplied. Production environment validation rejects insecure HTTP origins, non-Secure Admin cookies, and an enabled development reset provider before the API starts.

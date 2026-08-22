@@ -25,3 +25,5 @@ UUID primary keys, indexed slugs/status/order fields, timestamps, relational con
 ## Deployment
 
 Frontend and backend are independently deployable containers. PostgreSQL and Cloudinary-compatible storage are managed services. Migrations run as a release step; initial super-admin seeding consumes one-time environment values and stores only a password hash.
+
+Production configuration validation enforces HTTPS origins, Secure authentication cookies, and a disabled development reset provider. Swagger is development-visible but production-disabled unless explicitly enabled. Release verification combines the complete Chromium regression with a focused Chromium/Firefox/WebKit matrix, dependency advisory auditing, production builds, and Prisma migration status.

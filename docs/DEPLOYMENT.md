@@ -11,3 +11,16 @@ Phase 6 production deployments must provide both admin token secrets, exact admi
 Phase 8 production deployments must set a distinct cryptographically random `CONTENT_PREVIEW_SECRET` and may tune `CONTENT_PREVIEW_TTL_SECONDS` between 60 and 3600 seconds. Preview tokens must never be logged or placed in analytics. Run the additive publishing migration before deploying the Phase 8 API. `npm run publishing:verify` is a local-only end-to-end database check that creates and removes a uniquely identified service record; it must not be used as a production health endpoint.
 
 Phase 9 requires `NEXT_PUBLIC_SITE_URL` to be the exact canonical HTTPS frontend origin. Verify canonical links, JSON-LD, `robots.txt`, and `sitemap.xml` after deployment. The frontend emits compression-compatible responses plus nosniff, strict-origin referrer, restricted browser-permission, and same-origin opener headers. Keep these headers at the edge unless an equivalent stricter platform policy is deliberately configured. No Phase 9 external provider or new secret is required.
+
+## Phase 10 release checklist
+
+1. Back up PostgreSQL and verify `prisma migrate status` reports no pending migration.
+2. Run Prisma format and validation without modifying deployed migrations.
+3. Run frontend/backend lint, strict TypeScript checks, Jest, and production builds.
+4. Run the complete Chromium regression with `npm test -w frontend`.
+5. Run `npm run test:cross-browser` with the pinned Playwright Chromium, Firefox, and WebKit runtimes.
+6. Run `npm audit --omit=dev --audit-level=high`; Phase 10 verification completed with zero reported vulnerabilities.
+7. Verify `/api/v1/health/ready`, public content reads, Admin authentication, `robots.txt`, and `sitemap.xml` after deployment.
+8. Confirm `.env`, browser traces, reports, screenshots, and database backups are absent from the release commit.
+
+Production requires HTTPS values for `FRONTEND_URL`, `ADMIN_FRONTEND_URL`, and `PASSWORD_RESET_FRONTEND_URL`; `ADMIN_COOKIE_SECURE=true`; and `AUTH_DEV_RESET_PROVIDER=false`. `SWAGGER_ENABLED` defaults to false and should remain false unless protected production API documentation is an intentional operational decision. Apply restrictive edge CORS/TLS policies and supply all secrets through the deployment platform secret manager.

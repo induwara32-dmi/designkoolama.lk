@@ -6,6 +6,7 @@ import helmet from "helmet";
 import { json } from "express";
 import { AppModule } from "./app.module";
 import { ResponseInterceptor } from "./common/interceptors/response.interceptor";
+import { shouldExposeSwagger } from "./config/deployment-security";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -34,17 +35,15 @@ async function bootstrap() {
     }),
   );
   app.useGlobalInterceptors(new ResponseInterceptor());
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle("DesignKoolama API")
-    .setDescription("Public website and private CMS API")
-    .setVersion("1.0")
-    .addCookieAuth("access_token")
-    .build();
-  SwaggerModule.setup(
-    "docs",
-    app,
-    SwaggerModule.createDocument(app, swaggerConfig),
-  );
+  if (shouldExposeSwagger(config.get<string>("NODE_ENV"), config.get<boolean>("SWAGGER_ENABLED"))) {
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle("DesignKoolama API")
+      .setDescription("Public website and private CMS API")
+      .setVersion("1.0")
+      .addCookieAuth("access_token")
+      .build();
+    SwaggerModule.setup("docs", app, SwaggerModule.createDocument(app, swaggerConfig));
+  }
   await app.listen(config.get<number>("PORT", 4000));
 }
 

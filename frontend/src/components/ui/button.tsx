@@ -9,7 +9,7 @@ const styles = {
 
 type Shared = { variant?: keyof typeof styles; className?: string };
 type ButtonProps = Shared & ButtonHTMLAttributes<HTMLButtonElement>;
-type LinkButtonProps = Shared & AnchorHTMLAttributes<HTMLAnchorElement> & { href: string };
+type LinkButtonProps = Shared & AnchorHTMLAttributes<HTMLAnchorElement> & { href: string; prefetch?: boolean };
 
 export function Button({ variant = "primary", className, ...props }: ButtonProps) {
   return <button className={cn("inline-flex min-h-11 items-center justify-center rounded-md px-5 py-2.5 text-sm font-semibold transition duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange disabled:opacity-50", styles[variant], className)} {...props} />;

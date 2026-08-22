@@ -2,6 +2,19 @@
 
 Updated: 2026-08-22
 
+## Phase 10 completion
+
+Phase 10 — Cross-Browser, Responsive, Security, Production-Build, and Deployment Verification is complete.
+
+- Added a reproducible targeted production matrix for Chromium, Firefox, and WebKit covering representative public routes, accessible validation, private-route indexing isolation, delivery headers, and every required responsive width.
+- Tightened production environment validation: HTTPS public/Admin/reset origins, Secure Admin cookies, and a disabled development reset provider are mandatory. Swagger is disabled in production unless explicitly enabled.
+- Updated Next.js and aligned Prisma tooling to patched supported versions after a production dependency audit; the final audit reports zero vulnerabilities.
+- Fixed WebKit speculative RSC prefetch errors by disabling prefetch only on shared header navigation; ordinary navigation, appearance, keyboard handling, and public contracts are unchanged.
+- Verification passes: Chromium Playwright 205/205, cross-browser matrix 36/36, backend Jest 39/39, zero-warning lint, strict frontend/backend types, frontend/backend production builds, Prisma format/validation/status, and no pending migrations.
+- Responsive verification passed at 320, 375, 430, 768, 1024, 1280, 1440, and 1920 pixels in all three browser engines with no horizontal overflow.
+- Existing PostgreSQL data and all three migrations were preserved; Phase 10 required no migration.
+- Phase 11 has not started.
+
 ## Phase 9 completion
 
 Phase 9 — Motion, Accessibility, SEO, Structured Data, and Performance is complete and verified.
@@ -78,7 +91,7 @@ Phase 5 — Database and Public API Foundation is implemented in code. PostgreSQ
 
 ## Current phase
 
-Phase 9 — Motion, Accessibility, SEO, Structured Data, and Performance (complete)
+Phase 10 — Production Verification and Deployment Readiness (complete)
 
 ## Previous completed phase
 

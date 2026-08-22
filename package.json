@@ -2,18 +2,27 @@
   "name": "designkoolama",
   "private": true,
   "version": "0.1.0",
-  "engines": { "node": ">=22 <25" },
-  "workspaces": ["frontend", "backend"],
+  "engines": {
+    "node": ">=22 <25"
+  },
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
     "dev": "npm run dev --workspaces --if-present",
     "build": "npm run build --workspaces",
     "lint": "npm run lint --workspaces",
     "typecheck": "npm run typecheck --workspaces",
-    "test": "npm run test --workspaces --if-present"
-    ,"prisma:deploy": "prisma migrate deploy --schema backend/prisma/schema.prisma"
-    ,"prisma:seed": "ts-node backend/prisma/seed.ts"
-    ,"admin:provision": "ts-node backend/prisma/provision-super-admin.ts"
-    ,"admin:verify": "ts-node backend/scripts/verify-admin-auth.ts"
-    ,"publishing:verify": "ts-node backend/scripts/verify-publishing.ts"
+    "test": "npm run test --workspaces --if-present",
+    "prisma:deploy": "prisma migrate deploy --schema backend/prisma/schema.prisma",
+    "prisma:seed": "ts-node backend/prisma/seed.ts",
+    "admin:provision": "ts-node backend/prisma/provision-super-admin.ts",
+    "admin:verify": "ts-node backend/scripts/verify-admin-auth.ts",
+    "publishing:verify": "ts-node backend/scripts/verify-publishing.ts",
+    "test:cross-browser": "npm run test:cross-browser -w frontend"
+  },
+  "devDependencies": {
+    "prisma": "^6.12.0"
   }
 }

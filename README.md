@@ -34,3 +34,9 @@ Phase 8 CMS editors save drafts independently from the public website. Authorize
 ## Public quality and discovery
 
 Phase 9 adds reusable schema.org organization, website, service, breadcrumb, and creative-work data alongside canonical, Open Graph, Twitter, robots, and sitemap metadata. Public pages include a keyboard skip path, visible focus treatment, reduced-motion behavior, and a focus-managed mobile menu. Next.js supplies compression and additive browser security headers. Set `NEXT_PUBLIC_SITE_URL` to the canonical HTTPS origin in every deployed frontend environment.
+
+## Production verification
+
+Phase 10 verification uses `npm test` for the complete Chromium regression and `npm run test:cross-browser` for the targeted Chromium, Firefox, and WebKit production matrix. Before release, also run `npm run lint`, `npm run typecheck`, `npm run build`, `npm test -w backend`, Prisma format/validation/status, and `npm audit --omit=dev --audit-level=high`.
+
+Production backend configuration fails closed unless public, Admin, and reset origins use HTTPS, Admin cookies are Secure, and the development reset provider is disabled. Swagger is unavailable in production unless `SWAGGER_ENABLED=true` is deliberately configured.
