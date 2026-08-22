@@ -1,5 +1,6 @@
 export type AdminProfile = { id: string; email: string; displayName: string; status: string; lastLoginAt: string | null; roles: string[] };
 export type AdminSession = { id: string; userAgent: string | null; ipAddress: string | null; createdAt: string; lastUsedAt: string | null; expiresAt: string; current: boolean };
+export type CmsRecord = Record<string, unknown> & { id: string };
 
 type Envelope<T> = { data: T };
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
@@ -26,4 +27,9 @@ export const adminApi = {
   revokeSession: (id: string) => request<{ revoked: boolean }>(`/admin/auth/sessions/${id}`, { method: "DELETE" }),
   logoutAll: () => request<{ loggedOut: boolean }>("/admin/auth/logout-all", { method: "POST" }),
   changePassword: (currentPassword: string, newPassword: string) => request<{ changed: boolean }>("/admin/auth/change-password", { method: "POST", body: JSON.stringify({ currentPassword, newPassword }) }),
+  cmsList: (resource: string, search = "") => request<CmsRecord[]>(`/admin/cms/${resource}${search ? `?search=${encodeURIComponent(search)}` : ""}`),
+  cmsCreate: (resource: string, data: Record<string, unknown>) => request<CmsRecord>(`/admin/cms/${resource}`, { method: "POST", body: JSON.stringify({ data }) }),
+  cmsUpdate: (resource: string, id: string, data: Record<string, unknown>) => request<CmsRecord>(`/admin/cms/${resource}/${id}`, { method: "PATCH", body: JSON.stringify({ data }) }),
+  cmsArchive: (resource: string, id: string) => request<{ archived: boolean }>(`/admin/cms/${resource}/${id}`, { method: "DELETE" }),
+  submissionStatus: (resource: "quotes" | "contacts", id: string, status: string) => request<CmsRecord>(`/admin/cms/${resource}/${id}/status`, { method: "PATCH", body: JSON.stringify({ status }) }),
 };

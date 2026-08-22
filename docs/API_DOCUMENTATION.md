@@ -1,5 +1,17 @@
 # API Documentation
 
+## Phase 7 Admin CMS
+
+All routes below are under `/api/v1/admin/cms`, require the existing Phase 6 cookie session, enforce role-specific resource access, validate request bodies, and write mutation events to `ActivityLog`.
+
+- `GET /:resource` lists records and supports optional `search` and `status` filters.
+- `POST /:resource` creates supported content records.
+- `PATCH /:resource/:id` updates supported content records.
+- `DELETE /:resource/:id` safely archives supported records; referenced media cannot be archived.
+- `PATCH /quotes/:id/status` and `PATCH /contacts/:id/status` triage submissions.
+
+Supported resources are `pages`, `services`, `portfolio-categories`, `portfolio`, `package-categories`, `packages`, `testimonials`, `media`, `settings`, `quotes`, `contacts`, and `activity`. Super Administrators have full access. Content, Portfolio, and Inquiry managers are restricted to their planned domains. Media registration accepts HTTPS URLs and requires provider, MIME, size, title, and alternative-text metadata; binary provider upload remains behind the provider boundary.
+
 The API is versioned below `/api/v1`. Public read endpoints return only published records. Public write endpoints accept contact and quote submissions with validation and rate limits. Admin endpoints live below `/api/v1/admin` and require cookie authentication plus permissions. Swagger is served at `/docs` outside production or when explicitly enabled.
 
 Successful responses use `{ data, meta? }`; errors use `{ statusCode, code, message, details?, requestId, timestamp, path }`.
