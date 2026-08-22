@@ -8,6 +8,8 @@ Browser clients reach a Next.js application. Server Components request published
 
 Next.js App Router with strict TypeScript, Tailwind CSS, reusable accessible UI primitives, Framer Motion for opt-in client animation, React Hook Form and Zod for interactive forms. Public pages are server-first and cache published API responses. Admin pages are noindexed and use middleware plus backend authorization.
 
+The public shell owns canonical and social metadata, robots/sitemap output, safe schema.org JSON-LD serialization, keyboard skip navigation, focus management, and reduced-motion behavior. Route-specific service and portfolio schemas are composed from the same published content passed to the visible page. Compression and browser hardening headers are configured at the Next.js boundary.
+
 ## Backend
 
 NestJS modules are split by domain: auth, admins, pages, services, portfolio, packages, testimonials, media, quotes, contact, settings, SEO, activity log, and health. Global validation, exception mapping, response envelopes, request IDs, structured logs, Helmet, restricted CORS, and throttling are configured at the application boundary.

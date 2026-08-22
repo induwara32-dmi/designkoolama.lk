@@ -2,6 +2,19 @@
 
 Updated: 2026-08-22
 
+## Phase 9 completion
+
+Phase 9 — Motion, Accessibility, SEO, Structured Data, and Performance is complete and verified.
+
+- Added reusable, safely serialized JSON-LD for the organization, website, services, breadcrumbs, and portfolio creative works while preserving existing public API contracts and page metadata.
+- Expanded global search metadata, crawler directives, canonical verification, social metadata, and explicit preview/Admin exclusions.
+- Added a keyboard skip path and improved the mobile navigation with initial focus, focus containment, Escape handling, trigger-focus restoration, and reduced-motion compatibility.
+- Added compression and additive browser security/performance headers without introducing external providers or secrets.
+- Preserved the existing visual system and removed an attempted off-screen rendering optimization after screenshot inspection identified incomplete full-page rendering.
+- Verification passes: frontend/backend lint with zero warnings, strict frontend/backend types, backend Jest 34/34, frontend/backend production builds, Prisma format/validation/status, and Playwright 193/193.
+- Public layouts were verified without horizontal overflow at 320, 375, 430, 768, 1024, 1280, 1440, and 1920 pixels. Mobile, tablet, and desktop screenshots were directly inspected.
+- Phase 10 has not started.
+
 ## Phase 8 completion
 
 Phase 8 — Draft, Preview, Publish, and Live Public Integration is complete and verified.
@@ -65,7 +78,7 @@ Phase 5 — Database and Public API Foundation is implemented in code. PostgreSQ
 
 ## Current phase
 
-Phase 8 — Draft, Preview, Publish, and Live Public Integration (complete)
+Phase 9 — Motion, Accessibility, SEO, Structured Data, and Performance (complete)
 
 ## Previous completed phase
 

@@ -1,5 +1,9 @@
 # API Documentation
 
+## Phase 9 public discovery contracts
+
+Phase 9 does not change REST routes or response envelopes. Server-rendered public pages translate the existing published service and portfolio contracts into schema.org `Service` and `CreativeWork` documents with breadcrumb data. Organization and website schema are emitted globally. JSON-LD is serialized with HTML-significant characters escaped, and Admin/preview routes remain excluded from indexing and sitemap discovery.
+
 ## Phase 8 publishing API
 
 Authenticated publishing routes use `/api/v1/admin/publishing/:resource/:id`:

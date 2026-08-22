@@ -30,3 +30,7 @@ See `PROJECT_PLAN.md`, `SYSTEM_ARCHITECTURE.md`, and `docs/DEPLOYMENT.md` for im
 ## Publishing workflow
 
 Phase 8 CMS editors save drafts independently from the public website. Authorized administrators can create a short-lived signed preview, publish an immutable version, review publication history, or explicitly unpublish. Production requires a distinct `CONTENT_PREVIEW_SECRET`; local development may fall back to the configured access-token secret without exposing it. Run `npm run publishing:verify` for the safe local PostgreSQL workflow check.
+
+## Public quality and discovery
+
+Phase 9 adds reusable schema.org organization, website, service, breadcrumb, and creative-work data alongside canonical, Open Graph, Twitter, robots, and sitemap metadata. Public pages include a keyboard skip path, visible focus treatment, reduced-motion behavior, and a focus-managed mobile menu. Next.js supplies compression and additive browser security headers. Set `NEXT_PUBLIC_SITE_URL` to the canonical HTTPS origin in every deployed frontend environment.
