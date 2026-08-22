@@ -1,6 +1,7 @@
 export type AdminProfile = { id: string; email: string; displayName: string; status: string; lastLoginAt: string | null; roles: string[] };
 export type AdminSession = { id: string; userAgent: string | null; ipAddress: string | null; createdAt: string; lastUsedAt: string | null; expiresAt: string; current: boolean };
 export type CmsRecord = Record<string, unknown> & { id: string };
+export type ContentRevision = { id: string; version: number; createdAt: string; publishedAt: string | null; createdBy: { displayName: string } | null; publishedBy: { displayName: string } | null };
 
 type Envelope<T> = { data: T };
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
@@ -32,4 +33,8 @@ export const adminApi = {
   cmsUpdate: (resource: string, id: string, data: Record<string, unknown>) => request<CmsRecord>(`/admin/cms/${resource}/${id}`, { method: "PATCH", body: JSON.stringify({ data }) }),
   cmsArchive: (resource: string, id: string) => request<{ archived: boolean }>(`/admin/cms/${resource}/${id}`, { method: "DELETE" }),
   submissionStatus: (resource: "quotes" | "contacts", id: string, status: string) => request<CmsRecord>(`/admin/cms/${resource}/${id}/status`, { method: "PATCH", body: JSON.stringify({ status }) }),
+  previewContent: (resource: string, id: string) => request<{ path: string; expiresInSeconds: number }>(`/admin/publishing/${resource}/${id}/preview`, { method: "POST" }),
+  publishContent: (resource: string, id: string) => request<{ published: boolean; version: number }>(`/admin/publishing/${resource}/${id}/publish`, { method: "POST" }),
+  unpublishContent: (resource: string, id: string) => request<{ unpublished: boolean }>(`/admin/publishing/${resource}/${id}/unpublish`, { method: "POST" }),
+  revisions: (resource: string, id: string) => request<ContentRevision[]>(`/admin/publishing/${resource}/${id}/revisions`),
 };

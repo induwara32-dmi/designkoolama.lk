@@ -1,5 +1,18 @@
 # API Documentation
 
+## Phase 8 publishing API
+
+Authenticated publishing routes use `/api/v1/admin/publishing/:resource/:id`:
+
+- `POST /preview` returns a short-lived frontend preview path containing a signed, record-scoped context.
+- `POST /publish` atomically stores an immutable numbered revision, updates the stable public snapshot, and audits the action.
+- `POST /unpublish` removes the public snapshot and audits the action without deleting the editable record or its revision history.
+- `GET /revisions` returns safe version metadata without exposing tokens or credentials.
+
+Supported versioned resources are `pages`, `services`, `portfolio`, `packages`, and `testimonials`. Content and Portfolio managers remain restricted to their assigned resource families. `GET /api/v1/preview/:resource/:id?token=...` validates the signed context and returns the current draft only while the context is valid. Preview routes are noindex and excluded from the sitemap.
+
+Existing public routes and envelopes are unchanged. Public reads use the stable publication snapshot when present and otherwise preserve legacy published-row behavior. Draft edits therefore cannot leak into the live API.
+
 ## Phase 7 Admin CMS
 
 All routes below are under `/api/v1/admin/cms`, require the existing Phase 6 cookie session, enforce role-specific resource access, validate request bodies, and write mutation events to `ActivityLog`.

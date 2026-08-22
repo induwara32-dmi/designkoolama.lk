@@ -9,6 +9,7 @@ import { QuotesModule } from "./quotes/quotes.module";
 import { resolve } from "node:path";
 import { AdminAuthModule } from "./admin-auth/admin-auth.module";
 import { AdminCmsModule } from "./admin-cms/admin-cms.module";
+import { PublishingModule } from "./publishing/publishing.module";
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { AdminCmsModule } from "./admin-cms/admin-cms.module";
     PublicContentModule,
     ContactModule,
     QuotesModule,
-    AdminAuthModule, AdminCmsModule,
+    AdminAuthModule, AdminCmsModule, PublishingModule,
   ],
 })
 export class AppModule {}

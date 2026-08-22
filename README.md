@@ -26,3 +26,7 @@ Set `API_URL` for server-side content reads and `NEXT_PUBLIC_API_URL` for browse
 Admin pages live below `/admin` and are excluded from public navigation and indexing. Configure the Phase 6 variables documented in `.env.example`, apply migrations from the repository root with `npm run prisma:deploy`, then explicitly run `npm run admin:provision`. Provisioning is idempotent and never overwrites an existing password. After the first login, change the initial password from `/admin/security`; this revokes all active sessions.
 
 See `PROJECT_PLAN.md`, `SYSTEM_ARCHITECTURE.md`, and `docs/DEPLOYMENT.md` for implementation and operations details.
+
+## Publishing workflow
+
+Phase 8 CMS editors save drafts independently from the public website. Authorized administrators can create a short-lived signed preview, publish an immutable version, review publication history, or explicitly unpublish. Production requires a distinct `CONTENT_PREVIEW_SECRET`; local development may fall back to the configured access-token secret without exposing it. Run `npm run publishing:verify` for the safe local PostgreSQL workflow check.

@@ -14,7 +14,7 @@ NestJS modules are split by domain: auth, admins, pages, services, portfolio, pa
 
 ## Authentication and publishing
 
-Short-lived access and rotating refresh tokens use Secure, SameSite, HttpOnly cookies. Refresh sessions are hashed and stored per device. Roles aggregate permissions; guards enforce both authentication and authorization. Content has draft and published states. Public queries never expose drafts; preview requests require an authorized signed context.
+Short-lived access and rotating refresh tokens use Secure, SameSite, HttpOnly cookies. Refresh sessions are hashed and stored per device. Roles aggregate permissions; guards enforce both authentication and authorization. Content has isolated draft and published states. Draft edits remain in the editable entity while an immutable revision and JSON publication snapshot represent the live version. Public queries never expose drafts; preview requests require a short-lived HMAC-signed context scoped to one resource and record. Publish and unpublish actions enforce resource-specific RBAC and write audit events.
 
 ## Data and media
 

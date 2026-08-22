@@ -2,6 +2,19 @@
 
 Updated: 2026-08-22
 
+## Phase 8 completion
+
+Phase 8 — Draft, Preview, Publish, and Live Public Integration is complete and verified.
+
+- Added an additive publication migration with stable published snapshots and immutable `ContentRevision` history for pages, services, portfolio projects, packages, and testimonials; no existing rows or columns were removed or rewritten.
+- CMS edits now save as drafts. Existing published content remains publicly stable until an authorized administrator explicitly publishes a new version.
+- Added short-lived HMAC-signed, record-scoped preview contexts, a noindex preview route, explicit publish/unpublish controls, revision history, resource-specific RBAC, and publication audit events.
+- Public APIs prefer the latest published snapshot while preserving every existing response route and envelope. Package API content now merges relational tier changes into the existing package experience contract.
+- Real PostgreSQL verification passed for draft creation, signed preview, first publish, stable public reads during later edits, second publish, revision history, unpublish, audit persistence, and cleanup of the uniquely created verification record.
+- Verification passes: migration applied with no pending migrations, Prisma format/validation, frontend/backend lint with zero warnings, strict frontend/backend types, backend Jest 34/34, frontend/backend production builds, and Playwright 178/178.
+- Publishing controls were verified without horizontal overflow at 320, 375, 430, 768, 1024, 1280, 1440, and 1920 pixels. Mobile, tablet, and desktop screenshots were directly inspected.
+- Phase 9 has not started.
+
 ## Phase 7 completion
 
 Phase 7 — Admin CMS Management is complete and verified.
@@ -52,7 +65,7 @@ Phase 5 — Database and Public API Foundation is implemented in code. PostgreSQ
 
 ## Current phase
 
-Phase 7 — Admin CMS Management (complete)
+Phase 8 — Draft, Preview, Publish, and Live Public Integration (complete)
 
 ## Previous completed phase
 

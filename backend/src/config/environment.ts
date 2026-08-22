@@ -18,4 +18,6 @@ export const environmentSchema = Joi.object({
   PASSWORD_RESET_TTL_MINUTES: Joi.number().integer().min(5).default(30),
   PASSWORD_RESET_FRONTEND_URL: Joi.string().uri().when("NODE_ENV", { is: "production", then: Joi.required(), otherwise: Joi.optional() }),
   AUTH_DEV_RESET_PROVIDER: Joi.boolean().default(false),
+  CONTENT_PREVIEW_SECRET: Joi.string().min(32).when("NODE_ENV", { is: "production", then: Joi.required(), otherwise: Joi.optional() }),
+  CONTENT_PREVIEW_TTL_SECONDS: Joi.number().integer().min(60).max(3600).default(900),
 });

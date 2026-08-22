@@ -14,5 +14,6 @@
     ,"prisma:seed": "ts-node backend/prisma/seed.ts"
     ,"admin:provision": "ts-node backend/prisma/provision-super-admin.ts"
     ,"admin:verify": "ts-node backend/scripts/verify-admin-auth.ts"
+    ,"publishing:verify": "ts-node backend/scripts/verify-publishing.ts"
   }
 }
