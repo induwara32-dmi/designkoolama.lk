@@ -20,6 +20,7 @@
     "admin:provision": "ts-node backend/prisma/provision-super-admin.ts",
     "admin:verify": "ts-node backend/scripts/verify-admin-auth.ts",
     "publishing:verify": "ts-node backend/scripts/verify-publishing.ts",
+    "publishing:backfill": "ts-node backend/scripts/verify-public-content-state.ts",
     "test:cross-browser": "npm run test:cross-browser -w frontend"
   },
   "devDependencies": {

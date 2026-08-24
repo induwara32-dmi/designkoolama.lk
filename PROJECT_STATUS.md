@@ -150,3 +150,14 @@ Phase 4 — Public Services and Packages (complete)
 ## Next
 
 Phase 5 is ready to begin but has not been started.
+# Final CMS coverage audit (2026-08-23)
+
+- Added published, revisioned Page-section content for shared navigation/footer/contact/social data and the Home, About, Contact, and Get a Quote compositions.
+- Added an approved icon-key selector with previews and server-side allowlist enforcement; arbitrary SVG, script, HTML, CSS, source, and environment fields remain prohibited.
+- Added existing-Media selectors for portfolio galleries and testimonial avatars. Media metadata remains reference protected; direct binary upload still requires an owner-configured external media provider.
+- Added SEO editors for Pages, Services, and Portfolio records and expanded portfolio/testimonial mutation fields while preserving draft-first publishing, previews, revision history, RBAC, and audit logs.
+- Added an idempotent published-content initializer. It created missing structured sections/snapshots through the existing publishing service and repaired zero records on its final repeat run.
+- No Prisma schema change or migration was required; PostgreSQL remains on the three existing applied migrations.
+- Verification: frontend/backend lint and strict types pass; backend Jest 41/41; Chromium Playwright 207/207; backend/frontend production builds pass; Prisma format/validate/status pass; live publishing verification passes.
+- Cross-browser rerun: Firefox 12/12 and the complete Chromium/Firefox/WebKit matrix 36/36 passed. The prior Firefox `_page` failure was isolated to the managed Windows process sandbox blocking Firefox tab subprocesses; the matching Playwright Firefox runtime was reinstalled and final browser verification ran outside that restriction. Production dependency audit: zero vulnerabilities.
+- This is a post-project CMS coverage completion, not a new project phase. No deployment or commit was performed.

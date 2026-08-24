@@ -1,4 +1,5 @@
 import { InnerHero } from "@/components/pages/inner-hero";
 import { PortfolioBrowser } from "@/components/portfolio/portfolio-browser";
 import type { PortfolioProject } from "@/content/portfolio";
-export function PortfolioPage({projects}:{projects:PortfolioProject[]}){return <><InnerHero eyebrow="Our Work" title="Our" accent="Portfolio" description="Explore selected brand systems, campaigns, packaging, merchandise, and dimensional design crafted to make businesses stand out."/><section className="section bg-black"><div className="site-container"><PortfolioBrowser projects={projects}/></div></section></>}
+import type {RouteUiContent} from "@/content/route-ui-cms";
+export function PortfolioPage({projects,copy}:{projects:PortfolioProject[];copy:RouteUiContent["portfolio"]}){return <><InnerHero eyebrow={copy.heroEyebrow} title={copy.heroTitle} accent={copy.heroAccent} description={copy.heroDescription}/><section className="section bg-black"><div className="site-container"><PortfolioBrowser projects={projects}/></div></section></>}

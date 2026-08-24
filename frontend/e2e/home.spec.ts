@@ -5,7 +5,7 @@ const sizes = [
 ] as const;
 
 for (const size of sizes) {
-  test(`home layout at ${size.width}px`, async ({ page }) => {
+  test(`home layout at ${size.width}px`, async ({ page }, testInfo) => {
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
     await page.setViewportSize(size);
@@ -20,7 +20,7 @@ for (const size of sizes) {
     }
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForTimeout(600);
-    await page.screenshot({ path: `test-results/screenshots/${size.name}.png`, fullPage: true });
+    await page.screenshot({ path: testInfo.outputPath(`${size.name}.png`), fullPage: true });
   });
 }
 

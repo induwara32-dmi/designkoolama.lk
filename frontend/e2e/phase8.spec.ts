@@ -76,11 +76,11 @@ test("publication history exposes immutable version numbers", async ({ page }) =
   await expect(page.getByRole("list", { name: "Publication history" })).toContainText("Version 2");
 });
 
-for (const width of [320, 375, 430, 768, 1024, 1280, 1440, 1920]) test(`publishing controls have no overflow at ${width}px`, async ({ page }) => {
+for (const width of [320, 375, 430, 768, 1024, 1280, 1440, 1920]) test(`publishing controls have no overflow at ${width}px`, async ({ page }, testInfo) => {
   await page.setViewportSize({ width, height: 900 });
   await openEditor(page);
   await expect(page.getByRole("button", { name: "Preview draft" })).toBeVisible();
   await expect(page.locator(".admin-cms-editor")).toHaveCSS("opacity", "1");
   expect(await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)).toBe(false);
-  if ([320, 768, 1440].includes(width)) await page.screenshot({ path: `test-results/screenshots/phase8-publishing-${width}.png`, fullPage: true });
+  if ([320, 768, 1440].includes(width)) await page.screenshot({ path: testInfo.outputPath(`phase8-publishing-${width}.png`), fullPage: true });
 });

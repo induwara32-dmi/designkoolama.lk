@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { PackagesPage } from "@/components/packages/packages-page";
 import { ContentUnavailable } from "@/components/feedback/content-unavailable";
 import { packageExperiences } from "@/content/packages";
-import { loadPackages } from "@/services/public-content";
+import { loadPackages,loadPageSection } from "@/services/public-content";
+import {routeUiContent,type RouteUiContent} from "@/content/route-ui-cms";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Creative Packages | DesignKoolama",
@@ -21,6 +22,6 @@ export const metadata: Metadata = {
   },
 };
 export default async function Page() {
-  try { return <PackagesPage experiences={await loadPackages(packageExperiences)} />; }
+  try { const[experiences,ui]=await Promise.all([loadPackages(packageExperiences),loadPageSection<RouteUiContent>("route-content","ui",routeUiContent)]);return <PackagesPage experiences={experiences} copy={ui.packages} />; }
   catch { return <ContentUnavailable />; }
 }

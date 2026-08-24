@@ -1,31 +1,31 @@
 import { QuoteForm } from "@/components/forms/quote-form";
 import { InnerHero } from "@/components/pages/inner-hero";
 import { SectionHeading } from "@/components/ui/section-heading";
+import Link from "next/link";
+import type { QuoteCmsContent } from "@/content/quote-cms";
 export function QuotePage({
   service = "",
   packageName = "",
+  content,
 }: {
   service?: string;
   packageName?: string;
+  content: QuoteCmsContent;
 }) {
   return (
     <>
       <InnerHero
-        eyebrow="Start a Project"
-        title="Get a"
-        accent="Quote"
-        description="Tell us what you are building and we will help shape the right creative approach."
+        {...content.hero}
       />
       <section className="quote-section">
         <div className="site-container max-w-4xl">
           <SectionHeading
-            eyebrow="Project Brief"
-            title="Request a Quote"
+            eyebrow={content.form.eyebrow}
+            title={content.form.title}
             centered
           />
           <p className="mx-auto mt-4 max-w-xl text-center text-sm text-muted">
-          Share the essentials below. Attachment uploads are deferred for this
-          phase; we will request project files securely after confirming your brief.
+          {content.form.instructions}
           </p>
           <div className="mt-12">
           <QuoteForm
@@ -34,8 +34,7 @@ export function QuotePage({
             />
           </div>
           <p className="mt-6 text-center text-xs text-muted">
-            By submitting, you consent to being contacted about this request.
-            See our Privacy Policy.
+            {content.form.consent} <Link href={content.form.privacyHref}>{content.form.privacyLabel}</Link>
           </p>
         </div>
       </section>

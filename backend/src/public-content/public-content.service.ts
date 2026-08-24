@@ -139,6 +139,7 @@ export class PublicContentService {
           displayOrder: true,
           publishedSnapshot: true,
           category: { select: { slug: true, name: true } },
+          media: { orderBy: { displayOrder: "asc" }, select: { displayOrder: true, media: { select: { id: true, url: true, secureUrl: true, title: true, altText: true, caption: true, kind: true } } } },
         },
       }),
       this.prisma.portfolioProject.count({ where }),
@@ -172,6 +173,7 @@ export class PublicContentService {
         publishedSnapshot: true,
         category: { select: { slug: true, name: true } },
         service: { select: { slug: true, name: true } },
+        media: { orderBy: { displayOrder: "asc" }, select: { displayOrder: true, media: { select: { id: true, url: true, secureUrl: true, title: true, altText: true, caption: true, kind: true } } } },
         seo: {
           select: {
             title: true,

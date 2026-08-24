@@ -51,3 +51,4 @@
 @media(max-width:560px){.admin-publishing-actions{grid-template-columns:1fr}}
 .admin-workspace,.admin-content,.admin-cms,.admin-cms-grid,.admin-cms-editor{min-width:0;max-width:100%}.admin-publishing-actions button{min-width:0}
 .admin-publishing-actions{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-revision-list{display:grid;gap:7px;border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:10px;list-style:none}.admin-revision-list li{display:flex;justify-content:space-between;gap:12px;color:#aaa;font-size:12px}.admin-revision-list strong{color:#fff}
+.admin-icon-preview{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.65rem}.admin-icon-preview>span{display:grid;place-items:center;width:2rem;height:2rem;border:1px solid rgba(255,122,0,.28);border-radius:.5rem;color:#ff6800}.admin-icon-preview svg{width:1rem;height:1rem}

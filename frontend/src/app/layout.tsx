@@ -4,6 +4,8 @@ import { siteConfig } from "@/lib/site";
 import { JsonLd } from "@/components/seo/json-ld";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/structured-data";
 import "./globals.css";
+import {loadPageSection} from "@/services/public-content";
+import {siteContent,type SiteContent} from "@/content/site-content";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -20,6 +22,7 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title: siteConfig.name, description: siteConfig.description },
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body><JsonLd data={[organizationJsonLd, websiteJsonLd]}/><SiteShell>{children}</SiteShell></body></html>;
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const content=await loadPageSection<SiteContent>("site-settings","site",siteContent);
+  return <html lang="en"><body><JsonLd data={[organizationJsonLd, websiteJsonLd]}/><SiteShell content={content}>{children}</SiteShell></body></html>;
 }

@@ -6,26 +6,27 @@ import { InnerHero } from "@/components/pages/inner-hero";
 import { LinkButton } from "@/components/ui/button";
 import { SectionHeading } from "@/components/ui/section-heading";
 import type { PackageExperience } from "@/content/packages";
-export function PackagesPage({ experiences }: { experiences: PackageExperience[] }) {
+import type {RouteUiContent} from "@/content/route-ui-cms";
+export function PackagesPage({ experiences,copy }: { experiences: PackageExperience[];copy:RouteUiContent["packages"] }) {
   return (
     <>
       <InnerHero
-        eyebrow="Creative Packages"
-        title="Packages built to grow your business"
-        description="Focused creative solutions for educators, growing brands and businesses that need standout imagery."
+        eyebrow={copy.heroEyebrow}
+        title={copy.heroTitle}
+        description={copy.heroDescription}
       >
         <LinkButton
           href="#package-categories"
           className="mt-9 rounded-full px-8"
         >
-          Choose a Package
+          {copy.heroButton}
         </LinkButton>
       </InnerHero>
       <section className="section" id="package-categories">
         <div className="site-container">
           <SectionHeading
-            eyebrow="Package Categories"
-            title="Choose the support you need"
+            eyebrow={copy.categoriesEyebrow}
+            title={copy.categoriesTitle}
             centered
           />
           <div className="category-grid">
@@ -36,22 +37,17 @@ export function PackagesPage({ experiences }: { experiences: PackageExperience[]
                   <h2>{item.name}</h2>
                   <p>{item.description}</p>
                   <strong>
-                    Explore packages <ArrowRight />
+                    {copy.exploreLabel} <ArrowRight />
                   </strong>
                 </Link>
               </Reveal>
             ))}
           </div>
           <div className="package-stats">
-            {[
-              ["3+", "Years active"],
-              ["150+", "Projects delivered"],
-              ["80+", "Brand collaborations"],
-              ["20+", "Package options"],
-            ].map(([value, label]) => (
-              <div key={label}>
-                <strong>{value}</strong>
-                <span>{label}</span>
+            {copy.stats.filter(item=>item.visible).sort((a,b)=>a.order-b.order).map(item => (
+              <div key={item.label}>
+                <strong>{item.value}</strong>
+                <span>{item.label}</span>
               </div>
             ))}
           </div>
@@ -60,22 +56,12 @@ export function PackagesPage({ experiences }: { experiences: PackageExperience[]
       <section className="section service-dark">
         <div className="site-container">
           <SectionHeading
-            eyebrow="Built Around You"
-            title="Why choose our packages?"
+            eyebrow={copy.benefitsEyebrow}
+            title={copy.benefitsTitle}
             centered
           />
           <div className="benefit-grid">
-            {[
-              ["Clear scope", "Know what is included before work begins."],
-              [
-                "Professional craft",
-                "Every deliverable follows the same high design standard.",
-              ],
-              [
-                "Flexible growth",
-                "Start focused and add custom support when needed.",
-              ],
-            ].map(([title, description]) => (
+            {copy.benefits.filter(item=>item.visible).sort((a,b)=>a.order-b.order).map(({title,description}) => (
               <Reveal key={title}>
                 <article>
                   <CheckCircle2 />
@@ -90,25 +76,17 @@ export function PackagesPage({ experiences }: { experiences: PackageExperience[]
       <section className="section">
         <div className="site-container">
           <SectionHeading
-            eyebrow="How It Works"
-            title="Four steps to move forward"
+            eyebrow={copy.processEyebrow}
+            title={copy.processTitle}
             centered
           />
           <div className="package-process">
-            {[
-              "Select a category",
-              "Choose your tier",
-              "Share your brief",
-              "Create together",
-            ].map((step, index) => (
-              <Reveal key={step} delay={index * 0.06}>
+            {copy.steps.filter(item=>item.visible).sort((a,b)=>a.order-b.order).map((step, index) => (
+              <Reveal key={step.title} delay={index * 0.06}>
                 <article>
                   <b>0{index + 1}</b>
-                  <h3>{step}</h3>
-                  <p>
-                    Focused guidance keeps the process simple, transparent and
-                    collaborative.
-                  </p>
+                  <h3>{step.title}</h3>
+                  <p>{step.description}</p>
                 </article>
               </Reveal>
             ))}
@@ -118,14 +96,14 @@ export function PackagesPage({ experiences }: { experiences: PackageExperience[]
       <section className="service-cta">
         <div className="site-container">
           <Reveal>
-            <p className="eyebrow">Custom Creative Support</p>
-            <h2>Can&apos;t find the perfect fit?</h2>
-            <p>Tell us what you need and we will shape a package around it.</p>
+            <p className="eyebrow">{copy.customEyebrow}</p>
+            <h2>{copy.customTitle}</h2>
+            <p>{copy.customDescription}</p>
             <LinkButton
               href="/get-a-quote?package=Custom"
               className="mt-8 rounded-full px-9"
             >
-              Build My Package
+              {copy.customButton}
             </LinkButton>
           </Reveal>
         </div>

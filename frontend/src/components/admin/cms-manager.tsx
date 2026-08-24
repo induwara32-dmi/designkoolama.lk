@@ -13,11 +13,13 @@ import {
 } from "lucide-react";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { adminApi, type CmsRecord, type ContentRevision } from "@/lib/admin-api";
+import {approvedIconKeys} from "@/content/site-content";
+import {ApprovedIcon} from "@/components/ui/approved-icon";
 
 type Field = {
   key: string;
   label: string;
-  kind?: "text" | "textarea" | "number" | "boolean" | "json";
+  kind?: "text" | "textarea" | "number" | "boolean" | "json" | "media" | "media-multiple" | "icon";
   required?: boolean;
 };
 type Config = {
@@ -44,6 +46,7 @@ export const cmsConfigs: Record<string, Config> = {
       { key: "title", label: "Title", required: true },
       { key: "slug", label: "Slug", required: true },
       { key: "sections", label: "Sections (JSON)", kind: "json" },
+      { key: "seo", label: "SEO metadata", kind: "json" },
     ],
     archive: true,
     publishable: true,
@@ -56,6 +59,7 @@ export const cmsConfigs: Record<string, Config> = {
       ...common,
       { key: "summary", label: "Summary", kind: "textarea", required: true },
       { key: "content", label: "Content (JSON)", kind: "json" },
+      { key: "seo", label: "SEO metadata", kind: "json" },
     ],
     archive: true,
     publishable: true,
@@ -80,6 +84,8 @@ export const cmsConfigs: Record<string, Config> = {
       { key: "summary", label: "Summary", kind: "textarea", required: true },
       { key: "displayOrder", label: "Display order", kind: "number" },
       { key: "content", label: "Content (JSON)", kind: "json" },
+      { key: "mediaIds", label: "Project images", kind: "media-multiple" },
+      { key: "seo", label: "SEO metadata", kind: "json" },
     ],
     archive: true,
     publishable: true,
@@ -128,7 +134,7 @@ export const cmsConfigs: Record<string, Config> = {
       { key: "quote", label: "Quote", kind: "textarea", required: true },
       { key: "rating", label: "Rating", kind: "number" },
       { key: "displayOrder", label: "Display order", kind: "number" },
-      { key: "avatarId", label: "Avatar media ID" },
+      { key: "avatarId", label: "Avatar image", kind: "media" },
     ],
     archive: true,
     publishable: true,
@@ -215,6 +221,7 @@ export function CmsManager({ module }: { module: string }) {
     [error, setError] = useState(""),
     [success, setSuccess] = useState("");
   const [revisions, setRevisions] = useState<ContentRevision[]>([]);
+  const [media, setMedia] = useState<CmsRecord[]>([]);
   const load = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -229,6 +236,7 @@ export function CmsManager({ module }: { module: string }) {
   useEffect(() => {
     void load();
   }, [load]);
+  useEffect(()=>{if(config.fields.some(field=>field.kind==="media"||field.kind==="media-multiple"))void adminApi.cmsList("media","").then(setMedia).catch(()=>setMedia([]))},[config.fields]);
   const defaults = useMemo(
     () =>
       Object.fromEntries(
@@ -267,6 +275,7 @@ export function CmsManager({ module }: { module: string }) {
           const raw = form.get(field.key);
           if (field.kind === "boolean") return [field.key, raw === "on"];
           if (field.kind === "number") return [field.key, Number(raw)];
+          if(field.kind==="media-multiple")return[field.key,form.getAll(field.key).map(String).filter(Boolean)];
           if (field.kind === "json") {
             try {
               return [field.key, JSON.parse(String(raw))];
@@ -452,6 +461,7 @@ export function CmsManager({ module }: { module: string }) {
                 </button>
               </div>
               <form className="admin-form" onSubmit={submit}>
+                {config.resource==="pages"&&<label>Approved icon key<select aria-label="Approved icon key reference" defaultValue="flame">{approvedIconKeys.map(key=><option key={key}>{key}</option>)}</select><span className="admin-icon-preview">{approvedIconKeys.map(key=><span title={key} key={key}><ApprovedIcon iconKey={key}/></span>)}</span></label>}
                 {config.fields.map((field) => (
                   <label
                     key={`${selected.id}-${field.key}`}
@@ -471,7 +481,7 @@ export function CmsManager({ module }: { module: string }) {
                     ) : (
                       <>
                         {field.label}
-                        {field.kind === "textarea" || field.kind === "json" ? (
+                        {field.kind==="media"||field.kind==="media-multiple"?<select name={field.key} multiple={field.kind==="media-multiple"} defaultValue={field.kind==="media-multiple"?(Array.isArray(selected.media)?selected.media.map(item=>String((item as {mediaId?:unknown}).mediaId??"")):[]):String(valueFor(selected,field.key,field.kind))}><option value="">No media selected</option>{media.map(item=><option value={item.id} key={item.id}>{String(item.title??item.altText??item.id)}</option>)}</select>:field.kind==="icon"?<><select name={field.key} defaultValue={String(valueFor(selected,field.key,field.kind))}>{approvedIconKeys.map(key=><option key={key}>{key}</option>)}</select><span className="admin-icon-preview" aria-label="Approved icon preview">{approvedIconKeys.map(key=><span title={key} key={key}><ApprovedIcon iconKey={key}/></span>)}</span></>:field.kind === "textarea" || field.kind === "json" ? (
                           <textarea
                             name={field.key}
                             defaultValue={String(
