@@ -9,6 +9,5 @@ import { SafeResetDeliveryProvider } from "./reset-delivery.provider";
 import { AdminDashboardController } from "./admin-dashboard.controller";
 import { AdminDashboardService } from "./admin-dashboard.service";
 
-@Module({ controllers: [AdminAuthController, AdminDashboardController], providers: [AdminAuthService, AdminAuthGuard, RolesGuard, AdminOriginGuard, LoginRateLimitGuard, SafeResetDeliveryProvider, AdminDashboardService], exports: [AdminAuthGuard, RolesGuard] })
+@Module({ controllers: [AdminAuthController, AdminDashboardController], providers: [AdminAuthService, AdminAuthGuard, RolesGuard, AdminOriginGuard, LoginRateLimitGuard, SafeResetDeliveryProvider, AdminDashboardService], exports: [AdminAuthGuard, RolesGuard, AdminOriginGuard] })
 export class AdminAuthModule {}
-

@@ -16,6 +16,7 @@ async function request<T>(path: string, init?: RequestInit, retry = true): Promi
   if (!response.ok) throw new Error(payload && "message" in payload && payload.message ? payload.message : "Request could not be completed");
   return (payload as Envelope<T>).data;
 }
+async function uploadRequest(form:FormData,retry=true):Promise<CmsRecord>{const response=await fetch(`${apiUrl}/admin/cms/media/upload`,{method:"POST",body:form,credentials:"include"});if(response.status===401&&retry){const refreshed=await fetch(`${apiUrl}/admin/auth/refresh`,{method:"POST",credentials:"include",headers:{"Content-Type":"application/json"}});if(refreshed.ok)return uploadRequest(form,false)}const payload=await response.json().catch(()=>null) as Envelope<CmsRecord>|{message?:string}|null;if(!response.ok)throw new Error(payload&&"message"in payload&&payload.message?payload.message:"Image upload could not be completed");return(payload as Envelope<CmsRecord>).data}
 
 export const adminApi = {
   login: (email: string, password: string, rememberMe: boolean) => request<{ admin: AdminProfile }>("/admin/auth/login", { method: "POST", body: JSON.stringify({ email, password, rememberMe }) }, false),
@@ -32,6 +33,7 @@ export const adminApi = {
   cmsCreate: (resource: string, data: Record<string, unknown>) => request<CmsRecord>(`/admin/cms/${resource}`, { method: "POST", body: JSON.stringify({ data }) }),
   cmsUpdate: (resource: string, id: string, data: Record<string, unknown>) => request<CmsRecord>(`/admin/cms/${resource}/${id}`, { method: "PATCH", body: JSON.stringify({ data }) }),
   cmsArchive: (resource: string, id: string) => request<{ archived: boolean }>(`/admin/cms/${resource}/${id}`, { method: "DELETE" }),
+  uploadMedia:uploadRequest,
   submissionStatus: (resource: "quotes" | "contacts", id: string, status: string) => request<CmsRecord>(`/admin/cms/${resource}/${id}/status`, { method: "PATCH", body: JSON.stringify({ status }) }),
   previewContent: (resource: string, id: string) => request<{ path: string; expiresInSeconds: number }>(`/admin/publishing/${resource}/${id}/preview`, { method: "POST" }),
   publishContent: (resource: string, id: string) => request<{ published: boolean; version: number }>(`/admin/publishing/${resource}/${id}/publish`, { method: "POST" }),

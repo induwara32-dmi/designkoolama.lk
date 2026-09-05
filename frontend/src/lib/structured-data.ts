@@ -1,24 +1,41 @@
 import { siteConfig } from "@/lib/site";
+import type { SiteContent } from "@/content/site-content";
 
 const absolute = (path: string) => new URL(path, siteConfig.url).toString();
 
-export const organizationJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "ProfessionalService",
-  "@id": `${siteConfig.url}/#organization`,
-  name: siteConfig.legalName,
-  alternateName: siteConfig.name,
-  url: siteConfig.url,
-  email: "hello@designkoolama.com",
-  telephone: "+94 77 000 0000",
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: "No. 460, Thalawathugoda Road, Madiwela",
-    addressLocality: "Sri Jayawardenepura Kotte",
-    addressRegion: "Colombo",
-    addressCountry: "LK",
-  },
-};
+// A function, not a static object, so this always reflects whatever is actually
+// published in the "Shared website content" CMS record -- the same source the footer
+// reads from. A hardcoded copy here previously drifted out of sync with the footer's
+// real (admin-editable) contact details.
+export function organizationJsonLd(site: SiteContent) {
+  return {
+    "@context": "https://schema.org",
+    // LocalBusiness in addition to ProfessionalService: a Colombo-based studio with a
+    // real street address and phone number qualifies for local-business rich results.
+    "@type": ["ProfessionalService", "LocalBusiness"],
+    "@id": `${siteConfig.url}/#organization`,
+    name: siteConfig.legalName,
+    alternateName: siteConfig.name,
+    url: siteConfig.url,
+    // No standalone logo file exists in the codebase yet (the visible "wordmark" is
+    // just styled text) -- reusing the generated OG image is a reasonable placeholder
+    // until a real square/rectangular logo asset is supplied.
+    logo: `${siteConfig.url}/opengraph-image`,
+    image: `${siteConfig.url}/opengraph-image`,
+    email: site.contact.emails[0],
+    telephone: site.contact.phoneLabel,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: site.contact.address[0] ?? "",
+      addressLocality: "Sri Jayawardenepura Kotte",
+      addressRegion: "Colombo",
+      addressCountry: "LK",
+    },
+    sameAs: site.social
+      .filter((item) => item.visible && item.href.startsWith("http"))
+      .map((item) => item.href),
+  };
+}
 
 export const websiteJsonLd = {
   "@context": "https://schema.org",

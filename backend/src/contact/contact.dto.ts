@@ -5,6 +5,6 @@ export class CreateContactDto{
  @ApiProperty() @IsEmail() @MaxLength(254) email!:string;
  @ApiPropertyOptional() @IsOptional() @IsString() @MaxLength(30) phone?:string;
  @ApiProperty() @IsString() @Length(2,150) subject!:string;
- @ApiProperty() @IsString() @Length(10,5000) message!:string;
+ @ApiProperty() @IsString() @Length(20,5000) message!:string;
  @ApiPropertyOptional({description:"Spam trap; must remain empty"}) @IsOptional() @IsString() @MaxLength(0) website?:string;
 }

@@ -6,7 +6,7 @@
     "dev": "nest start --watch",
     "build": "nest build",
     "start": "node dist/main.js",
-    "lint": "eslint \"{src,test}/**/*.ts\" scripts/verify-admin-auth.ts scripts/verify-publishing.ts prisma/provision-super-admin.ts --max-warnings=0",
+    "lint": "eslint \"{src,test}/**/*.ts\" scripts/verify-admin-auth.ts scripts/verify-publishing.ts scripts/verify-media-upload.ts prisma/provision-super-admin.ts --max-warnings=0",
     "typecheck": "tsc --noEmit",
     "test": "jest --passWithNoTests",
     "prisma:generate": "prisma generate",
@@ -14,7 +14,8 @@
     "prisma:deploy": "prisma migrate deploy",
     "prisma:seed": "ts-node prisma/seed.ts",
     "admin:provision": "ts-node prisma/provision-super-admin.ts",
-    "admin:verify": "ts-node scripts/verify-admin-auth.ts"
+    "admin:verify": "ts-node scripts/verify-admin-auth.ts",
+    "media:verify": "ts-node scripts/verify-media-upload.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.6",
@@ -25,6 +26,7 @@
     "@prisma/client": "^6.12.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
+    "cloudinary": "^2.7.0",
     "helmet": "^8.1.0",
     "joi": "^18.0.1",
     "reflect-metadata": "^0.2.2",
@@ -37,6 +39,7 @@
     "@nestjs/testing": "^11.1.6",
     "@types/express": "^5.0.3",
     "@types/jest": "^30.0.0",
+    "@types/multer": "^2.2.0",
     "@types/node": "^22.18.0",
     "eslint": "^9.35.0",
     "eslint-config-prettier": "^10.1.8",

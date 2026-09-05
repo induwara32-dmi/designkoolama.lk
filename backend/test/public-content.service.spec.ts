@@ -4,6 +4,7 @@ describe("PublicContentService", () => {
   const prisma = {
     service: { findMany: jest.fn(), findFirst: jest.fn() },
     portfolioProject: { findMany: jest.fn(), count: jest.fn() },
+    portfolioCategory: { findMany: jest.fn(), findFirst: jest.fn() },
     $transaction: jest.fn(),
   } as never;
   const service = new PublicContentService(prisma);
@@ -31,8 +32,16 @@ describe("PublicContentService", () => {
   it("serves the stable publication snapshot while a newer draft exists", async () => {
     (
       prisma as { service: { findMany: jest.Mock } }
-    ).service.findMany.mockResolvedValue([{ slug: "branding", name: "Draft", publishedSnapshot: { slug: "branding", name: "Published" } }]);
-    await expect(service.services()).resolves.toEqual([{ slug: "branding", name: "Published" }]);
+    ).service.findMany.mockResolvedValue([
+      {
+        slug: "branding",
+        name: "Draft",
+        publishedSnapshot: { slug: "branding", name: "Published" },
+      },
+    ]);
+    await expect(service.services()).resolves.toEqual([
+      { slug: "branding", name: "Published" },
+    ]);
   });
   it("returns 404 for invalid service slugs", async () => {
     (
@@ -62,5 +71,67 @@ describe("PublicContentService", () => {
       (prisma as { portfolioProject: { findMany: jest.Mock } }).portfolioProject
         .findMany,
     ).toHaveBeenCalledWith(expect.objectContaining({ skip: 5, take: 5 }));
+  });
+  it("lists only published category snapshots", async () => {
+    (
+      prisma as { portfolioCategory: { findMany: jest.Mock } }
+    ).portfolioCategory.findMany.mockResolvedValue([
+      {
+        publishedSnapshot: {
+          slug: "branding-and-identity",
+          name: "Branding & Identity",
+        },
+      },
+    ]);
+    await expect(service.portfolioCategories()).resolves.toEqual([
+      {
+        slug: "branding-and-identity",
+        name: "Branding & Identity",
+      },
+    ]);
+    expect(
+      (prisma as { portfolioCategory: { findMany: jest.Mock } })
+        .portfolioCategory.findMany,
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          isActive: true,
+          status: "PUBLISHED",
+          publishedSnapshot: { not: expect.any(Object) },
+        },
+        orderBy: { displayOrder: "asc" },
+        select: { publishedSnapshot: true, updatedAt: true },
+      }),
+    );
+  });
+  it("aggregates ordered images from published projects in the requested category", async () => {
+    (
+      prisma as { portfolioCategory: { findFirst: jest.Mock } }
+    ).portfolioCategory.findFirst.mockResolvedValue({
+      id: "category",
+      publishedSnapshot: {
+        slug: "branding-and-identity",
+        name: "Branding & Identity",
+        galleryImages: [
+          {displayOrder:0,altText:"Category image",caption:"Category caption",media:{id:"image-1",altText:"Media alt",caption:null}},
+        ],
+      },
+    });
+    const result = await service.portfolioCategory("branding-and-identity", {
+      page: 1,
+      limit: 9,
+    });
+    expect(result.items).toEqual([
+      {displayOrder:0,media:{id:"image-1",altText:"Category image",caption:"Category caption"}},
+    ]);
+    expect((prisma as {portfolioProject:{findMany:jest.Mock}}).portfolioProject.findMany).not.toHaveBeenCalled();
+  });
+  it("returns 404 for an unpublished category slug", async () => {
+    (
+      prisma as { portfolioCategory: { findFirst: jest.Mock } }
+    ).portfolioCategory.findFirst.mockResolvedValue(null);
+    await expect(
+      service.portfolioCategory("missing", { page: 1, limit: 9 }),
+    ).rejects.toBeInstanceOf(NotFoundException);
   });
 });

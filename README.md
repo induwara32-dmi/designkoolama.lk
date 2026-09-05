@@ -27,6 +27,12 @@ Admin pages live below `/admin` and are excluded from public navigation and inde
 
 See `PROJECT_PLAN.md`, `SYSTEM_ARCHITECTURE.md`, and `docs/DEPLOYMENT.md` for implementation and operations details.
 
+## Media uploads
+
+The Admin Media Library supports both existing HTTPS-URL registration and direct image upload through Cloudinary. Configure the five media variables in `.env.example`; credentials stay backend-only. Uploaded JPEG, PNG, WebP, and AVIF files are signature-checked, size-limited, stored remotely, and recorded in PostgreSQL with accessible metadata. Run `npm run media:verify` only in an authorized local environment to create, publish, verify, and remove a disposable image and portfolio record without printing provider details.
+
+Portfolio management is category-first. Administrators manage category cards, banners, category-page copy, and ordered gallery images directly in Portfolio categories, then explicitly preview and publish the category snapshot. The public `/portfolio` index shows exactly the six published categories; `/portfolio/category/[slug]` reads only that category's published direct gallery. Legacy project records are preserved but are not required for new gallery content and do not create public cards or detail pages.
+
 ## Publishing workflow
 
 Phase 8 CMS editors save drafts independently from the public website. Authorized administrators can create a short-lived signed preview, publish an immutable version, review publication history, or explicitly unpublish. Production requires a distinct `CONTENT_PREVIEW_SECRET`; local development may fall back to the configured access-token secret without exposing it. Run `npm run publishing:verify` for the safe local PostgreSQL workflow check.

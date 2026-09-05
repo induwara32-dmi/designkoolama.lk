@@ -21,6 +21,7 @@
     "admin:verify": "ts-node backend/scripts/verify-admin-auth.ts",
     "publishing:verify": "ts-node backend/scripts/verify-publishing.ts",
     "publishing:backfill": "ts-node backend/scripts/verify-public-content-state.ts",
+    "media:verify": "npm run media:verify -w backend",
     "test:cross-browser": "npm run test:cross-browser -w frontend"
   },
   "devDependencies": {

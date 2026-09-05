@@ -10,7 +10,9 @@ const frontendEnvironmentKeys = new Set([
   "API_URL",
   "NEXT_PUBLIC_API_URL",
   "NEXT_PUBLIC_SITE_URL",
+  "NEXT_PUBLIC_WHATSAPP_NUMBER",
   "CONTENT_FALLBACK_ENABLED",
+  "CLOUDINARY_CLOUD_NAME",
 ]);
 const rootEnvironmentPath = resolve(process.cwd(), "../.env");
 const rootEnvironmentLines = existsSync(rootEnvironmentPath)
@@ -26,22 +28,33 @@ for (const line of rootEnvironmentLines) {
       : value;
 }
 
+const isProduction = process.env.NODE_ENV === "production";
+
 const nextConfig: NextConfig = {
   agentRules: false,
   allowedDevOrigins: ["localhost", "127.0.0.1"],
   poweredByHeader: false,
   compress: true,
   images: {
-    remotePatterns: [{ protocol: "https", hostname: "res.cloudinary.com" }],
+    remotePatterns: [{ protocol: "https", hostname: "res.cloudinary.com",pathname:process.env.CLOUDINARY_CLOUD_NAME?`/${process.env.CLOUDINARY_CLOUD_NAME}/**`:"/__cloudinary_not_configured__/**" }],
   },
   async headers() {
+    // Content-Security-Policy is set in middleware.ts instead of here: it needs a
+    // fresh per-request nonce (see middleware.ts for why a static policy without one
+    // blocks Next's own framework-injected scripts), and a per-request value can't be
+    // computed in this static config function.
     return [{
       source: "/:path*",
       headers: [
         { key: "X-Content-Type-Options", value: "nosniff" },
+        { key: "X-Frame-Options", value: "DENY" },
         { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-        { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+        { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), interest-cohort=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()" },
         { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+        // HSTS only makes sense once the site is actually served over HTTPS in
+        // production; sending it in local dev (plain http) has no effect in browsers
+        // but there is no reason to send a header that doesn't apply.
+        ...(isProduction ? [{ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" }] : []),
       ],
     }];
   },

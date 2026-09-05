@@ -1,6 +1,43 @@
 # Project Status
 
-Updated: 2026-08-22
+Updated: 2026-08-28
+
+## Simplified Testimonials and Home connection (2026-08-28)
+
+- Added a non-technical Testimonials manager with only name, position, comment, image, clickable 1–5 star rating, Add/Edit/Remove/Cancel actions, and secure inline Media upload.
+- New and edited testimonials save and publish immediately through the existing authenticated CMS/publishing/audit path; archive removes them from public Home while preserving shared Media assets.
+- Home now reads published testimonials from `/public/testimonials` and renders a responsive 3/2/1-card carousel with five-second autoplay, swipe, pagination, hover/focus pause, and reduced-motion support. No sample testimonial is used by the live section.
+- Verification: focused testimonial Playwright 1/1; Featured Work regression 4/4; frontend/backend lint and strict checks passed; frontend/backend production builds passed. No migration was required.
+
+## Shared Portfolio Category Card Image (2026-08-28)
+
+- Added one draft-backed Card Image control to each Portfolio Category. It supports direct secure upload, immediate preview, replacement, safe removal, and optional Media Library selection without exposing technical metadata.
+- The existing `cardMedia` relationship remains the single source of truth for both `/portfolio` cards and the Home Featured Work carousel; banners and galleries remain separate.
+- Focused Playwright coverage passed for add/remove behavior, shared Home/category rendering, carousel timing, pagination, and 320/768/1920px responsiveness. Frontend lint, strict type-check, and production build passed. No migration or backend contract changed.
+
+## Home Featured Work category carousel (2026-08-28)
+
+- Replaced the Home page's hardcoded individual-project Featured Work cards with the first six published, visible Portfolio Categories returned by the existing public categories API.
+- Added responsive 3/2/1-card grouping, two-page autoplay, indicator controls, touch swipe, hover/focus pause, reduced-motion behavior, stable image sizing, and direct category-page arrow links.
+- Focused Playwright verification passed 4/4 (desktop cycling, category destinations/data source, 320/768/1920 responsive overflow); frontend lint, strict type-check, and production build passed. No backend contract or migration changed.
+
+## Portfolio Categories Admin simplification
+
+- Replaced the generic Portfolio Categories inspector with a dedicated visual manager. Category rows now expose only the name, publication status, and a `Manage` action; raw records, identifiers, and `publishedSnapshot` JSON are not rendered.
+- Grouped ordinary copy under `Category Content` and moved URL, card, icon, ordering, and visibility controls into collapsed `Advanced Settings`.
+- Banner upload is now one-step with an immediate preview, category-based alternative-text default, and safe change/remove controls. Gallery upload accepts one or many files, attaches them immediately to the draft UI, and supports individual removal and re-adding. The Media Library is shown only when explicitly requested.
+- The editor provides `Save Changes`, `Preview`, `Publish Changes`, and `Cancel`. Uploads never auto-publish; existing public snapshots remain live until explicit publication.
+- A clean provider context and the exact authenticated multipart upload endpoint both completed a live upload successfully. The prior provider error came from the stale local backend process retaining earlier provider configuration; the clean backend now loads the current ignored root environment. No secret values were displayed.
+- Verification: Admin/media Playwright 10/10, public category Playwright 10/10, backend Jest 68/68, frontend/backend lint and strict type checks passed, both production builds passed, Prisma validation passed, and all nine migrations are applied with none pending.
+
+## Direct Portfolio category media management completion
+
+- Portfolio category banners and ordered galleries are now managed directly in Admin → Portfolio categories; creating or publishing a Portfolio Project is no longer required.
+- The category editor supports protected Media Library selection, secure single-banner and multi-image inline uploads, banner metadata, per-gallery-item alt text/captions, replacement, safe detachment, and ordering while preserving draft → preview → publish, revisions, RBAC, and audit logging.
+- Public category pages read gallery media only from the published category snapshot backed by `PortfolioCategoryGalleryImage`; legacy project records remain preserved but are not a public gallery dependency.
+- Media archival now protects active category card, banner, and gallery references. Removing a banner or gallery item only detaches the category relation.
+- Migrations `20260827010000_portfolio_category_gallery`, `20260827011000_backfill_category_gallery`, `20260827012000_portfolio_category_banner_details`, and the compatibility snapshot migration were applied non-destructively. All nine migrations are current.
+- Verification: backend Jest 68/68, focused Playwright 17/17, authenticated Admin visual inspection 1/1, Prisma format/validation/status, zero-warning lint, strict types, and frontend/backend builds pass.
 
 ## Phase 10 completion
 
@@ -161,3 +198,48 @@ Phase 5 is ready to begin but has not been started.
 - Verification: frontend/backend lint and strict types pass; backend Jest 41/41; Chromium Playwright 207/207; backend/frontend production builds pass; Prisma format/validate/status pass; live publishing verification passes.
 - Cross-browser rerun: Firefox 12/12 and the complete Chromium/Firefox/WebKit matrix 36/36 passed. The prior Firefox `_page` failure was isolated to the managed Windows process sandbox blocking Firefox tab subprocesses; the matching Playwright Firefox runtime was reinstalled and final browser verification ran outside that restriction. Production dependency audit: zero vulnerabilities.
 - This is a post-project CMS coverage completion, not a new project phase. No deployment or commit was performed.
+
+# Secure direct media uploads (2026-08-25)
+
+- Added backend-only Cloudinary image upload and deletion behind the existing Admin session, origin, RBAC, rate-limit, validation, reference-protection, and audit boundaries.
+- The Media Library now provides accessible direct JPEG/PNG/WebP/AVIF upload with local preview while preserving existing HTTPS-URL registration and metadata editing.
+- Uploaded Media records can be selected by the existing portfolio gallery and testimonial avatar controls. Portfolio publication snapshots retain the selected safe media metadata, and public portfolio cards/case studies render it with Next.js Image.
+- No schema change or migration was required; image binaries remain outside PostgreSQL.
+- Safe disposable Cloudinary/PostgreSQL verification passed: upload metadata, portfolio selection, explicit publication snapshot, public read, remote deletion, and unique database cleanup all succeeded.
+- Verification passed: backend Jest 56/56, focused upload Playwright 3/3, complete Chromium Playwright 210/210, and Chromium/Firefox/WebKit production matrix 36/36.
+- Frontend/backend lint passed with zero warnings; strict TypeScript checks and production builds passed; Prisma format/validation/status passed with the existing three migrations current; production dependency audit reported zero vulnerabilities.
+- This is a post-project enhancement, not a new numbered phase. No deployment or commit was performed.
+
+# Portfolio Admin editor usability (2026-08-25)
+
+- Replaced category/service UUID inputs with readable relationship selectors populated from existing CMS records.
+- Added a responsive visual Media Library picker with cover selection, ordered gallery management, removal, persisted edit restoration, and a clear empty state.
+- Added secure inline upload inside the project draft form; it preserves unsaved fields, refreshes the library, selects the uploaded image, and never auto-publishes.
+- Corrected portfolio create/update persistence for category, optional service, slug, client, and ordered media relationships. Existing published snapshots remain stable until explicit publication.
+- Focused backend, browser, lint, strict-type, build, responsive, and public Portfolio regression results are recorded in the completion report. No migration, deployment, phase, or commit was created.
+
+# Portfolio information architecture correction (2026-08-26)
+
+- Corrected `/portfolio` to show published Portfolio category cards only and added `/portfolio/category/[slug]` galleries with category-isolated published projects, nine-item pagination, empty states, canonical metadata, breadcrumbs, and sitemap entries.
+- Added draft-first Portfolio category card content, approved icon keys, Media artwork, ordering, visibility, publication snapshots, revisions, RBAC, audit logging, unpublishing, and safe archiving. Existing project records and `/portfolio/[slug]` case studies are preserved.
+- Added the inspected additive `20260826000000_portfolio_category_publishing` migration. It backfills the six existing category snapshots without dropping or rewriting project records; four migrations are applied and current.
+- Category-card Media is reference protected. The Admin category editor supports Media-library selection and secure inline upload without auto-publishing.
+- Verification passed: 61/61 backend Jest tests, 222/222 complete Chromium Playwright tests, both zero-warning lint runs, both strict TypeScript checks, frontend/backend production builds, Prisma format/validation, and migration status. Category galleries have no horizontal overflow at 320, 375, 430, 768, 1024, 1280, 1440, or 1920 pixels.
+- This is a post-project correction, not a new numbered phase. No deployment or commit was performed.
+
+# Portfolio Admin creation and direct case-study navigation fix (2026-08-27)
+
+- Mapped Prisma `P2002` project-slug conflicts to a safe 409 response and added clear preflight validation for category, optional service, required image, and Media relationships. Empty optional service and SEO values are normalized correctly, while ordered image creation remains atomic with the project draft.
+- Fixed editable, collision-aware slug generation from the project title and preserved all uncontrolled draft fields when an API error is shown.
+- Corrected published-project decoding by merging CMS snapshot metadata with nested case-study content. New Admin-created projects now retain the owner-approved case-study sections and images after publication.
+- Kept exactly six Portfolio category cards. Each `Explore More` link now opens the category's first published project by display order directly at `/portfolio/[slug]`; legacy category URLs redirect to that project and are no longer included in the sitemap.
+- Verification: backend Jest 65/65, direct-navigation/Phase 3 Playwright 48/48, real authenticated Admin create-upload-publish-reopen-cleanup Playwright 1/1, zero-warning lint, strict frontend/backend TypeScript, frontend/backend builds, and Prisma format/validation/status all pass. No new migration was required.
+# Final Portfolio category architecture correction (2026-08-27)
+
+- The public Portfolio is now category-based: `/portfolio` retains exactly six category cards and each `Explore More` action opens `/portfolio/category/[slug]`.
+- Category pages reuse the established case-study visual language for category name, short description, banner, overview, and a responsive gallery. They do not expose project titles, client/date/challenge/result fields, project cards, or project navigation.
+- Superseded by the 2026-08-28 direct-category media completion above: Portfolio Projects and their snapshots are preserved but are no longer a public gallery dependency.
+- Portfolio Categories gained additive draft/publish fields for short description, overview, and banner media. Card artwork and banner media both use the protected Media Library/inline upload workflow.
+- Legacy `/portfolio/[projectSlug]` URLs are no longer public case-study destinations and return the public not-found experience. Existing project/database/media records remain preserved.
+- Additive migration `20260827000000_portfolio_category_pages` was inspected and applied; all five migrations are current.
+- Verification: backend Jest 65/65, focused Portfolio/Phase 3 Playwright 48/48, authenticated real Admin create/upload/publish/category-gallery workflow 1/1, backend/frontend lint and strict type-check pass, both production builds pass, Prisma format/validate/status pass, and category layouts have no horizontal overflow at 320, 375, 430, 768, 1024, 1280, 1440, and 1920 px.

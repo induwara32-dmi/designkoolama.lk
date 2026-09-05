@@ -21,6 +21,11 @@ export const environmentSchema = Joi.object({
   AUTH_DEV_RESET_PROVIDER: Joi.boolean().when("NODE_ENV", { is: "production", then: Joi.valid(false).default(false), otherwise: Joi.boolean().default(false) }),
   CONTENT_PREVIEW_SECRET: Joi.string().min(32).when("NODE_ENV", { is: "production", then: Joi.required(), otherwise: Joi.optional() }),
   CONTENT_PREVIEW_TTL_SECONDS: Joi.number().integer().min(60).max(3600).default(900),
+  CLOUDINARY_CLOUD_NAME: Joi.string().trim().optional(),
+  CLOUDINARY_API_KEY: Joi.string().trim().optional(),
+  CLOUDINARY_API_SECRET: Joi.string().trim().optional(),
+  CLOUDINARY_FOLDER: Joi.string().trim().pattern(/^[a-zA-Z0-9/_-]+$/).optional(),
+  MEDIA_MAX_FILE_SIZE_MB: Joi.number().integer().min(1).max(25).default(10),
 }).custom((value: Record<string, unknown>, helpers) => {
   if (value.NODE_ENV !== "production") return value;
   for (const key of ["FRONTEND_URL", "ADMIN_FRONTEND_URL", "PASSWORD_RESET_FRONTEND_URL"] as const) {

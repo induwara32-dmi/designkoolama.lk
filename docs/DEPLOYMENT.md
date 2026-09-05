@@ -4,6 +4,8 @@ Build and deploy `frontend` and `backend` independently using Node.js 22 LTS. Pr
 
 Health checks use `GET /api/v1/health`. Back up PostgreSQL before migrations and retain media-provider version history where supported.
 
+Direct Admin uploads require backend-only `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, and `CLOUDINARY_FOLDER`, plus `MEDIA_MAX_FILE_SIZE_MB` (1–25). Do not expose any of these through `NEXT_PUBLIC_*`. Restrict the Cloudinary credential to the intended account/folder and rotate it through the deployment secret manager. The frontend image allowlist is scoped to the configured Cloudinary account path at build time. A missing provider configuration fails only the upload operation; public reads and URL registration remain available. Use `npm run media:verify` only against an authorized non-production provider/database, because it performs a real disposable upload and remote delete.
+
 Phase 6 production deployments must provide both admin token secrets, exact admin origin/reset URL, Secure cookie settings, and a production reset-email provider before administrator access is enabled. Run provisioning once with temporary secret-manager values for `INITIAL_SUPER_ADMIN_EMAIL` and `INITIAL_SUPER_ADMIN_PASSWORD`, remove those values afterward, sign in, and immediately rotate the password from the Security page. Never run provisioning as part of the ordinary application seed or startup command.
 
 `npm run admin:verify` is a local development verification command. It runs against PostgreSQL, activates the in-memory reset provider only inside its non-production process, restores the configured owner password, revokes verification sessions, and never prints sensitive material. Do not use it as a production health check.

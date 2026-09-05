@@ -1,4 +1,140 @@
 import type {IconKey} from "./site-content";
-type Card={title:string;description:string;iconKey:IconKey};
-export type AboutCmsContent={hero:{eyebrow:string;title:string;accent:string;tail:string;description:string;buttonLabel:string;buttonHref:string};badges:Array<{label:string;iconKey:IconKey}>;story:{eyebrow:string;title:string;paragraphs:string[];signature:string};facts:Card[];founder:{eyebrow:string;initials:string;name:string;role:string;caption:string;title:string;paragraphs:string[];signatureRole:string};foundation:{eyebrow:string;title:string;cards:Card[];valuesLabel:string;values:Card[]};location:{eyebrow:string;title:string};advantage:{eyebrow:string;title:string;items:Array<Card>;buttonLabel:string;buttonHref:string}};
-export const aboutCmsContent:AboutCmsContent={hero:{eyebrow:"About Us",title:"Designing Brands That",accent:"Inspire,",tail:"Connect, and Grow.",description:"We are a dedicated team of creative professionals based in Sri Lanka, passionate about delivering exceptional design solutions that elevate brands and create lasting impressions.",buttonLabel:"Explore our portfolio",buttonHref:"/portfolio"},badges:[{label:"Est. 2022",iconKey:"calendar"},{label:"Sri Lanka Based",iconKey:"map-pin"},{label:"Global Reach",iconKey:"globe"}],story:{eyebrow:"Who We Are",title:"A Creative Studio Built on Passion & Purpose",paragraphs:["Founded in 2022 and proudly rooted in Sri Lanka, Design Koolama (Pvt) Ltd. was born from a vision to bring world-class creative design to businesses across the island and beyond. We specialize in branding, graphic design, and digital experiences.","At the heart of everything we do is a commitment to our clients. We are detail-oriented, strategy-driven, and deeply passionate about delivering design that makes a measurable impact."],signature:"Design Koolama (Pvt) Ltd."},facts:[{title:"Founded in 2022",description:"A young and dynamic studio that emerged with a clear mission — to redefine creative design in Sri Lanka and set new standards of excellence.",iconKey:"flag"},{title:"Based in Colombo, Sri Lanka",description:"Headquartered in the heart of Sri Lanka's commercial capital, we bring local insight combined with a globally inspired design perspective.",iconKey:"map-pin"},{title:"Serving Clients Worldwide",description:"Though rooted locally, our work has reached clients across Asia, the Middle East, and beyond.",iconKey:"globe"}],founder:{eyebrow:"Founder's Message",initials:"DP",name:"Dineth Pabasara",role:"Founder & Creative Designer",caption:"Leading creative strategy and design excellence at Design Koolama",title:"Welcome to Design Koolama",paragraphs:["I founded this studio with a single vision — to bring world-class creative design to Sri Lankan businesses and beyond. Great design is not just aesthetics; it is a powerful business tool that communicates your brand's story, values, and vision.","Every project we take on is crafted with care, strategy, and creativity at its core. Thank you for choosing to be part of our journey."],signatureRole:"Founder, Design Koolama"},foundation:{eyebrow:"Our Foundation",title:"Our Mission, Vision & Core Values",cards:[{title:"Our Mission",description:"To deliver innovative and impactful design solutions that empower businesses to stand out, grow, and inspire their audiences.",iconKey:"lightbulb"},{title:"Our Vision",description:"To become the most trusted creative design studio in South Asia, recognized for transforming brands through world-class creative strategy.",iconKey:"eye"}],valuesLabel:"Core Values",values:[{title:"Creativity",description:"Pushing boundaries with bold, original thinking in every project we touch.",iconKey:"brush"},{title:"Integrity",description:"Honest, transparent, and ethical in everything we do and deliver.",iconKey:"shield"},{title:"Innovation",description:"Embracing new ideas, tools, and approaches to stay ahead of the curve.",iconKey:"lightbulb"},{title:"Excellence",description:"Never settling for less than the best in every single deliverable.",iconKey:"trophy"}]},location:{eyebrow:"Our Location",title:"Find Us & Get In Touch"},advantage:{eyebrow:"Our Advantage",title:"Why Work With Us?",items:["Fast Response Time","Tailor-Made Creative Solutions","On-Time Project Delivery","Dedicated Client Support"].map(title=>({title,description:"Reliable, considered creative partnership built around your goals and timeline.",iconKey:"check" as const})),buttonLabel:"Get a free quote",buttonHref:"/get-a-quote"}};
+
+type IconCard = {iconKey: IconKey; title: string; description: string};
+
+export type AboutCmsContent = {
+  hero: {eyebrow: string; title: string; accent: string; tail: string; description: string; buttonLabel: string; buttonHref: string};
+  badges: Array<{label: string; iconKey: IconKey}>;
+  story: {eyebrow: string; title: string; paragraphs: string[]; facts: IconCard[]};
+  founder: {
+    eyebrow: string;
+    photoUrl: string;
+    photoAlt: string;
+    name: string;
+    role: string;
+    caption: string;
+    messageHeading: string;
+    messageParagraphs: string[];
+    signatureName: string;
+    signatureTitle: string;
+  };
+  foundation: {
+    eyebrow: string;
+    title: string;
+    mission: IconCard;
+    vision: IconCard;
+    valuesLabel: string;
+    values: IconCard[];
+  };
+  location: {eyebrow: string; title: string; address: string; email: string; phone: string; hours: string};
+  advantage: {
+    eyebrow: string;
+    title: string;
+    items: Array<{title: string; description: string}>;
+    buttonLabel: string;
+    buttonHref: string;
+  };
+};
+
+export const aboutCmsContent: AboutCmsContent = {
+  hero: {
+    eyebrow: "About Us",
+    title: "Designing Brands That",
+    accent: "Inspire,",
+    tail: "Connect, and Grow.",
+    description:
+      "We are a dedicated team of creative professionals based in Sri Lanka, passionate about delivering exceptional design solutions that elevate brands and create lasting impressions.",
+    buttonLabel: "Explore our portfolio",
+    buttonHref: "/portfolio",
+  },
+  badges: [
+    {label: "Est. 2022", iconKey: "calendar"},
+    {label: "Sri Lanka Based", iconKey: "map-pin"},
+    {label: "Global Reach", iconKey: "globe"},
+  ],
+  story: {
+    eyebrow: "Who We Are",
+    title: "A Creative Studio Built on Passion & Purpose",
+    paragraphs: [
+      "Founded in 2022 and proudly rooted in Sri Lanka, Design Koolama (Pvt) Ltd. was born from a vision to bring world-class creative design to businesses across the island and beyond. We specialize in branding, graphic design, and digital experiences.",
+      "At the heart of everything we do is a commitment to our clients. We are detail-oriented, strategy-driven, and deeply passionate about delivering design that makes a measurable impact.",
+    ],
+    facts: [
+      {
+        title: "Founded in 2022",
+        description:
+          "A young and dynamic studio that emerged with a clear mission — to redefine creative design in Sri Lanka and set new standards of excellence.",
+        iconKey: "flag",
+      },
+      {
+        title: "Based in Colombo, Sri Lanka",
+        description:
+          "Headquartered in the heart of Sri Lanka's commercial capital, we bring local insight combined with a globally inspired design perspective.",
+        iconKey: "map-pin",
+      },
+      {
+        title: "Serving Clients Worldwide",
+        description: "Though rooted locally, our work has reached clients across Asia, the Middle East, and beyond.",
+        iconKey: "globe",
+      },
+    ],
+  },
+  founder: {
+    eyebrow: "Founder's Message",
+    photoUrl: "",
+    photoAlt: "",
+    name: "Dineth Pabasara",
+    role: "Founder & Creative Designer",
+    caption: "Leading creative strategy and design excellence at Design Koolama",
+    messageHeading: "Welcome to Design Koolama",
+    messageParagraphs: [
+      "I founded this studio with a single vision — to bring world-class creative design to Sri Lankan businesses and beyond. Great design is not just aesthetics; it is a powerful business tool that communicates your brand's story, values, and vision.",
+      "Every project we take on is crafted with care, strategy, and creativity at its core. Thank you for choosing to be part of our journey.",
+    ],
+    signatureName: "Dineth Pabasara",
+    signatureTitle: "Founder, Design Koolama",
+  },
+  foundation: {
+    eyebrow: "Our Foundation",
+    title: "Our Mission, Vision & Core Values",
+    mission: {
+      iconKey: "lightbulb",
+      title: "Our Mission",
+      description:
+        "To deliver innovative and impactful design solutions that empower businesses to stand out, grow, and inspire their audiences.",
+    },
+    vision: {
+      iconKey: "eye",
+      title: "Our Vision",
+      description:
+        "To become the most trusted creative design studio in South Asia, recognized for transforming brands through world-class creative strategy.",
+    },
+    valuesLabel: "Core Values",
+    values: [
+      {title: "Creativity", description: "Pushing boundaries with bold, original thinking in every project we touch.", iconKey: "brush"},
+      {title: "Integrity", description: "Honest, transparent, and ethical in everything we do and deliver.", iconKey: "shield"},
+      {title: "Innovation", description: "Embracing new ideas, tools, and approaches to stay ahead of the curve.", iconKey: "lightbulb"},
+      {title: "Excellence", description: "Never settling for less than the best in every single deliverable.", iconKey: "trophy"},
+    ],
+  },
+  location: {
+    eyebrow: "Our Location",
+    title: "Find Us & Get In Touch",
+    address: "No. 460, Thalawathugoda Road, Madiwela\nSri Jayawardenepura Kotte, Colombo, Sri Lanka",
+    email: "designkoolamapvtltd@gmail.com",
+    phone: "+94 76 353 6554",
+    hours: "Mon – Fri: 9:00 AM – 6:00 PM · Sat – Sun: Closed",
+  },
+  advantage: {
+    eyebrow: "Our Advantage",
+    title: "Why Work With Us?",
+    items: [
+      {title: "Fast Response Time", description: "Reliable, considered creative partnership built around your goals and timeline."},
+      {title: "Tailor-Made Creative Solutions", description: "Reliable, considered creative partnership built around your goals and timeline."},
+      {title: "On-Time Project Delivery", description: "Reliable, considered creative partnership built around your goals and timeline."},
+      {title: "Dedicated Client Support", description: "Reliable, considered creative partnership built around your goals and timeline."},
+    ],
+    buttonLabel: "Get a free quote",
+    buttonHref: "/get-a-quote",
+  },
+};

@@ -11,6 +11,9 @@ import {
 import { FormInput, FormSelect, FormTextarea } from "@/components/forms/fields";
 import { Button } from "@/components/ui/button";
 import { quoteSubmissionService } from "@/services/quote";
+import { buildWhatsAppLink, joinWhatsAppMessage } from "@/lib/whatsapp";
+import { services as staticServices, type ServiceContent } from "@/content/services";
+import { loadServices } from "@/services/public-content";
 
 const schema = z.object({
   fullName: z.string().trim().min(2, "Enter your full name"),
@@ -26,6 +29,9 @@ const schema = z.object({
     .string()
     .trim()
     .min(20, "Tell us a little more about your project"),
+  // Honeypot: invisible to real visitors, so it must stay empty. A bot that fills in
+  // every field on the page will trip it, and the backend rejects a non-empty value.
+  website: z.string().max(0).optional(),
   attachment: z
     .custom<FileList>()
     .optional()
@@ -44,6 +50,21 @@ const schema = z.object({
 });
 type FormValues = z.infer<typeof schema>;
 
+function buildQuoteWhatsAppMessage(values: FormValues) {
+  return joinWhatsAppMessage([
+    "Hi, I'd like to request a quote.",
+    `Name: ${values.fullName}`,
+    `Email: ${values.email}`,
+    `WhatsApp: ${values.phone}`,
+    `Preferred contact: ${values.preferredContact}`,
+    values.company?.trim() && `Company: ${values.company.trim()}`,
+    `Service: ${values.service}`,
+    values.budget?.trim() && `Budget: ${values.budget.trim()}`,
+    `Deadline: ${values.deadline}`,
+    `Project details: ${values.projectDetails}`,
+  ]);
+}
+
 export function QuoteForm({
   includeAttachment = false,
   initialService = "",
@@ -55,6 +76,17 @@ export function QuoteForm({
 }) {
   const [serverError, setServerError] = useState("");
   const [success, setSuccess] = useState(false);
+  // Starts from the static list so the dropdown is never empty, then upgrades to live
+  // service data once it loads -- so a service created after the last deploy is selectable
+  // here too, not just the 6 originally-seeded ones.
+  const [serviceOptions, setServiceOptions] = useState<readonly ServiceContent[]>(staticServices);
+  useEffect(() => {
+    let active = true;
+    loadServices()
+      .then((items) => { if (active && items.length) setServiceOptions(items); })
+      .catch(() => { /* keep the static list on failure */ });
+    return () => { active = false; };
+  }, []);
   const {
     register,
     handleSubmit,
@@ -80,14 +112,21 @@ export function QuoteForm({
   const onSubmit = async (values: FormValues) => {
     setServerError("");
     setSuccess(false);
+    // Opened synchronously (before the await below) so it stays tied to this click and
+    // isn't blocked as a popup; it's redirected to the WhatsApp link once the save succeeds.
+    const whatsappTab = window.open("", "_blank");
     try {
       await quoteSubmissionService.submit({
         ...values,
         selectedPackage: initialPackage || undefined,
       });
+      const link = buildWhatsAppLink(buildQuoteWhatsAppMessage(values));
+      if (whatsappTab) whatsappTab.location.href = link;
+      else window.open(link, "_blank", "noopener,noreferrer");
       setSuccess(true);
       reset();
     } catch (error) {
+      whatsappTab?.close();
       setServerError(
         error instanceof Error
           ? error.message
@@ -97,15 +136,21 @@ export function QuoteForm({
   };
   return (
     <form className="quote-card" noValidate onSubmit={handleSubmit(onSubmit)}>
+      <div className="hp-field" aria-hidden="true">
+        <label htmlFor="quote-website">Leave this field blank</label>
+        <input id="quote-website" type="text" tabIndex={-1} autoComplete="off" {...register("website")} />
+      </div>
       <div className="grid gap-6 md:grid-cols-2">
         <FormInput
           label="Full Name"
+          id="quote-fullName"
           placeholder="John Doe"
           error={errors.fullName?.message}
           {...register("fullName")}
         />
         <FormInput
           label="Email Address"
+          id="quote-email"
           type="email"
           placeholder="john@company.com"
           error={errors.email?.message}
@@ -113,6 +158,7 @@ export function QuoteForm({
         />
         <FormInput
           label="WhatsApp Number"
+          id="quote-phone"
           type="tel"
           placeholder="+94 77 123 4567"
           error={errors.phone?.message}
@@ -120,12 +166,14 @@ export function QuoteForm({
         />
         <FormInput
           label="Project Deadline"
+          id="quote-deadline"
           type="date"
           error={errors.deadline?.message}
           {...register("deadline")}
         />
         <FormInput
           label="Company Name"
+          id="quote-company"
           optional
           placeholder="Your Company Ltd."
           error={errors.company?.message}
@@ -133,6 +181,7 @@ export function QuoteForm({
         />
         <FormSelect
           label="Preferred Contact"
+          id="quote-preferredContact"
           error={errors.preferredContact?.message}
           {...register("preferredContact")}
         >
@@ -142,19 +191,18 @@ export function QuoteForm({
         </FormSelect>
         <FormSelect
           label="Service Required"
+          id="quote-service"
           error={errors.service?.message}
           {...register("service")}
         >
           <option value="">Select a service</option>
-          <option>Branding & Identity</option>
-          <option>Print Advertising</option>
-          <option>Social Media Design</option>
-          <option>Packaging Design</option>
-          <option>Merchandise Design</option>
-          <option>3D Design</option>
+          {serviceOptions.map((item) => (
+            <option key={item.slug} value={item.name}>{item.name}</option>
+          ))}
         </FormSelect>
         <FormSelect
           label="Budget"
+          id="quote-budget"
           error={errors.budget?.message}
           {...register("budget")}
         >
@@ -167,6 +215,7 @@ export function QuoteForm({
       <div className="mt-6">
         <FormTextarea
           label="Project Details"
+          id="quote-projectDetails"
           placeholder="Tell us about your project..."
           error={errors.projectDetails?.message}
           {...register("projectDetails")}
@@ -176,6 +225,7 @@ export function QuoteForm({
         <div className="mt-6">
           <FormInput
             label="Project Attachment"
+            id="quote-attachment"
             type="file"
             accept=".png,.jpg,.jpeg,.webp,.pdf"
             error={errors.attachment?.message}
@@ -190,7 +240,7 @@ export function QuoteForm({
       )}
       {success && (
         <div className="mt-5">
-          <SuccessMessage message="Your request has been submitted." />
+          <SuccessMessage message="Thanks! We've received your request — continue the conversation on WhatsApp." />
         </div>
       )}
       <Button

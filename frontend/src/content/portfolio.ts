@@ -1,12 +1,186 @@
-export type PortfolioCategory = "All" | "Branding & Identity" | "Print Advertising" | "Social Media Design" | "Packaging Design" | "Merchandise Design" | "3D Design";
-export type PortfolioProject = { slug: string; title: string; client: string; category: Exclude<PortfolioCategory, "All">; service: string; date: string; description: string; overview: string; challenge: string; solution: string; results: string[]; tone: string };
+export type PortfolioCategory =
+  | "All"
+  | "Branding & Identity"
+  | "Print Advertising"
+  | "Social Media Design"
+  | "Packaging Design"
+  | "Merchandise Design"
+  | "3D Design";
+export type PortfolioMedia = {
+  id: string;
+  url: string;
+  secureUrl: string;
+  title: string;
+  altText: string;
+  caption?: string | null;
+};
+import type { IconKey } from "@/content/site-content";
+export type PortfolioCategoryCard = {
+  slug: string;
+  name: string;
+  cardTitle?: string | null;
+  description?: string | null;
+  shortDescription?: string | null;
+  overview?: string | null;
+  iconKey?: IconKey | null;
+  displayOrder: number;
+  cardMedia?: PortfolioMedia | null;
+  bannerMedia?: PortfolioMedia | null;
+  bannerAltText?: string | null;
+  bannerCaption?: string | null;
+};
+export type PortfolioProject = {
+  slug: string;
+  title: string;
+  client: string;
+  category: Exclude<PortfolioCategory, "All">;
+  categorySlug?: string;
+  service: string;
+  date: string;
+  description: string;
+  overview: string;
+  challenge: string;
+  solution: string;
+  results: string[];
+  tone: string;
+  media?: Array<{ displayOrder: number; media: PortfolioMedia }>;
+};
 
 export const portfolioProjects: PortfolioProject[] = [
-  { slug:"nexus-rebrand", title:"Nexus Rebrand", client:"Nexus Technologies", category:"Branding & Identity", service:"Brand strategy and identity", date:"March 2026", description:"A bold visual identity system crafted for a tech pioneer entering new markets.", overview:"Nexus needed a coherent identity capable of supporting an ambitious regional expansion.", challenge:"Unify several product lines without losing the trust attached to the original business.", solution:"We built a modular identity, concise messaging system, and practical rollout toolkit.", results:["Clearer market positioning","Consistent cross-channel rollout","Stronger internal brand adoption"], tone:"rings" },
-  { slug:"pulse-dashboard", title:"Pulse Dashboard", client:"Pulse Analytics", category:"Print Advertising", service:"Campaign and information design", date:"February 2026", description:"An intuitive analytics campaign with seamless flows and smart data visualization.", overview:"Pulse wanted complex product value explained in a confident, approachable campaign.", challenge:"Make data-heavy benefits understandable within seconds across printed touchpoints.", solution:"We created a bold visual hierarchy supported by a flexible diagram and icon system.", results:["Faster sales conversations","Improved campaign consistency","Reusable launch toolkit"], tone:"squares" },
-  { slug:"aura-packaging", title:"Aura Packaging", client:"Aura House", category:"Social Media Design", service:"Social campaign system", date:"January 2026", description:"Luxury packaging storytelling that elevates perception at first glance.", overview:"Aura required a launch system that made its premium positioning immediately visible.", challenge:"Translate tactile luxury into distinctive social-first creative.", solution:"We combined warm art direction, geometric compositions, and a repeatable content system.", results:["Higher launch engagement","Premium visual consistency","Expandable campaign system"], tone:"hex" },
-  { slug:"orbit-social-kit", title:"Orbit Social Kit", client:"Orbit Labs", category:"Packaging Design", service:"Packaging and campaign design", date:"December 2025", description:"Dynamic templates that amplify presence across channels and drive engagement.", overview:"Orbit needed an adaptable design system for a growing product family.", challenge:"Create variety while keeping each product unmistakably part of one brand.", solution:"We created a scalable packaging grid with a shared color and typographic structure.", results:["Faster packaging rollout","Clearer product navigation","Stronger shelf presence"], tone:"orbit" },
-  { slug:"luminary-web", title:"Luminary Web", client:"Luminary Studio", category:"Merchandise Design", service:"Merchandise identity", date:"November 2025", description:"A high-performance branded merchandise collection built for impact.", overview:"Luminary needed merchandise that felt valuable beyond a promotional giveaway.", challenge:"Balance expressive visuals with production and material constraints.", solution:"We developed a focused collection with adaptable marks and production-ready artwork.", results:["Successful limited release","Consistent production files","Positive community response"], tone:"window" },
-  { slug:"forma-identity", title:"Forma Identity", client:"Forma Architecture", category:"3D Design", service:"3D visual identity", date:"October 2025", description:"Striking visual language for an architectural studio with a bold design philosophy.", overview:"Forma wanted a dimensional identity to express its spatial approach.", challenge:"Represent architectural rigor without relying on literal building imagery.", solution:"We created a geometric 3D language designed for motion, print, and digital applications.", results:["Distinct market presence","Flexible motion system","Memorable presentation toolkit"], tone:"triangle" },
+  {
+    slug: "nexus-rebrand",
+    title: "Nexus Rebrand",
+    client: "Nexus Technologies",
+    category: "Branding & Identity",
+    service: "Brand strategy and identity",
+    date: "March 2026",
+    description:
+      "A bold visual identity system crafted for a tech pioneer entering new markets.",
+    overview:
+      "Nexus needed a coherent identity capable of supporting an ambitious regional expansion.",
+    challenge:
+      "Unify several product lines without losing the trust attached to the original business.",
+    solution:
+      "We built a modular identity, concise messaging system, and practical rollout toolkit.",
+    results: [
+      "Clearer market positioning",
+      "Consistent cross-channel rollout",
+      "Stronger internal brand adoption",
+    ],
+    tone: "rings",
+  },
+  {
+    slug: "pulse-dashboard",
+    title: "Pulse Dashboard",
+    client: "Pulse Analytics",
+    category: "Print Advertising",
+    service: "Campaign and information design",
+    date: "February 2026",
+    description:
+      "An intuitive analytics campaign with seamless flows and smart data visualization.",
+    overview:
+      "Pulse wanted complex product value explained in a confident, approachable campaign.",
+    challenge:
+      "Make data-heavy benefits understandable within seconds across printed touchpoints.",
+    solution:
+      "We created a bold visual hierarchy supported by a flexible diagram and icon system.",
+    results: [
+      "Faster sales conversations",
+      "Improved campaign consistency",
+      "Reusable launch toolkit",
+    ],
+    tone: "squares",
+  },
+  {
+    slug: "aura-packaging",
+    title: "Aura Packaging",
+    client: "Aura House",
+    category: "Social Media Design",
+    service: "Social campaign system",
+    date: "January 2026",
+    description:
+      "Luxury packaging storytelling that elevates perception at first glance.",
+    overview:
+      "Aura required a launch system that made its premium positioning immediately visible.",
+    challenge:
+      "Translate tactile luxury into distinctive social-first creative.",
+    solution:
+      "We combined warm art direction, geometric compositions, and a repeatable content system.",
+    results: [
+      "Higher launch engagement",
+      "Premium visual consistency",
+      "Expandable campaign system",
+    ],
+    tone: "hex",
+  },
+  {
+    slug: "orbit-social-kit",
+    title: "Orbit Social Kit",
+    client: "Orbit Labs",
+    category: "Packaging Design",
+    service: "Packaging and campaign design",
+    date: "December 2025",
+    description:
+      "Dynamic templates that amplify presence across channels and drive engagement.",
+    overview:
+      "Orbit needed an adaptable design system for a growing product family.",
+    challenge:
+      "Create variety while keeping each product unmistakably part of one brand.",
+    solution:
+      "We created a scalable packaging grid with a shared color and typographic structure.",
+    results: [
+      "Faster packaging rollout",
+      "Clearer product navigation",
+      "Stronger shelf presence",
+    ],
+    tone: "orbit",
+  },
+  {
+    slug: "luminary-web",
+    title: "Luminary Web",
+    client: "Luminary Studio",
+    category: "Merchandise Design",
+    service: "Merchandise identity",
+    date: "November 2025",
+    description:
+      "A high-performance branded merchandise collection built for impact.",
+    overview:
+      "Luminary needed merchandise that felt valuable beyond a promotional giveaway.",
+    challenge:
+      "Balance expressive visuals with production and material constraints.",
+    solution:
+      "We developed a focused collection with adaptable marks and production-ready artwork.",
+    results: [
+      "Successful limited release",
+      "Consistent production files",
+      "Positive community response",
+    ],
+    tone: "window",
+  },
+  {
+    slug: "forma-identity",
+    title: "Forma Identity",
+    client: "Forma Architecture",
+    category: "3D Design",
+    service: "3D visual identity",
+    date: "October 2025",
+    description:
+      "Striking visual language for an architectural studio with a bold design philosophy.",
+    overview:
+      "Forma wanted a dimensional identity to express its spatial approach.",
+    challenge:
+      "Represent architectural rigor without relying on literal building imagery.",
+    solution:
+      "We created a geometric 3D language designed for motion, print, and digital applications.",
+    results: [
+      "Distinct market presence",
+      "Flexible motion system",
+      "Memorable presentation toolkit",
+    ],
+    tone: "triangle",
+  },
 ];
-export const portfolioCategories: PortfolioCategory[] = ["All", ...Array.from(new Set(portfolioProjects.map((project) => project.category)))] as PortfolioCategory[];
+export const portfolioCategories: PortfolioCategory[] = [
+  "All",
+  ...Array.from(new Set(portfolioProjects.map((project) => project.category))),
+] as PortfolioCategory[];
