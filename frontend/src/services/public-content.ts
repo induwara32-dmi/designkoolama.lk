@@ -5,7 +5,8 @@ import type {
   PortfolioProject,
 } from "@/content/portfolio";
 import type { ServiceContent } from "@/content/services";
-const apiUrl = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL;
+import { SERVER_API_URL } from "@/lib/api-config";
+const apiUrl = SERVER_API_URL;
 const fallbackEnabled = process.env.CONTENT_FALLBACK_ENABLED === "true";
 type Envelope<T> = { data: T };
 type PortfolioApiItem =

@@ -15,7 +15,14 @@ import { PublishingModule } from "./publishing/publishing.module";
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: resolve(__dirname, "../../.env"),
+      // Vercel (like most hosts) injects real env vars straight into process.env --
+      // there is no .env file in the deployed bundle, and there shouldn't be one.
+      // Pointing at a real file path only makes sense for local dev and the
+      // standalone-server build, where the monorepo keeps its ignored .env two
+      // levels above this compiled file (backend/dist/app.module.js -> repo root).
+      envFilePath: process.env.VERCEL
+        ? undefined
+        : resolve(__dirname, "../../.env"),
       validationSchema: environmentSchema,
     }),
     HealthModule,

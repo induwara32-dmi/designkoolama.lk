@@ -4,7 +4,14 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  // Pooled connection (Neon's PgBouncer endpoint, or add ?pgbouncer=true) -- every
+  // Vercel Serverless Function invocation runs in its own process and opens its own
+  // Prisma connection, so a direct (unpooled) Postgres connection here would let
+  // concurrent invocations exhaust Postgres's connection limit in minutes.
+  url       = env("DATABASE_URL")
+  // Unpooled connection, used only for `prisma migrate` -- PgBouncer's transaction
+  // pooling mode doesn't support the session-level features migrations rely on.
+  directUrl = env("DIRECT_URL")
 }
 
 enum ContentStatus {

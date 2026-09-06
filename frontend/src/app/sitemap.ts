@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/site";
+import { SERVER_API_URL } from "@/lib/api-config";
 
-const apiUrl = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL;
+const apiUrl = SERVER_API_URL;
 
 type Envelope<T> = { data: T };
 async function fetchPublic<T>(path: string): Promise<T> {

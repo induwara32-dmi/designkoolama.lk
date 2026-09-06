@@ -1,12 +1,22 @@
+import { PUBLIC_API_URL } from "./api-config";
+
 export type AdminProfile = { id: string; email: string; displayName: string; status: string; lastLoginAt: string | null; roles: string[] };
 export type AdminSession = { id: string; userAgent: string | null; ipAddress: string | null; createdAt: string; lastUsedAt: string | null; expiresAt: string; current: boolean };
 export type CmsRecord = Record<string, unknown> & { id: string };
 export type ContentRevision = { id: string; version: number; createdAt: string; publishedAt: string | null; createdBy: { displayName: string } | null; publishedBy: { displayName: string } | null };
 
 type Envelope<T> = { data: T };
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
+// No localhost fallback: a missing NEXT_PUBLIC_API_URL should surface as a loud,
+// obvious error in the admin panel, not a silent request to the wrong host.
+const apiUrl = PUBLIC_API_URL;
+
+function requireApiUrl(): string {
+  if (!apiUrl) throw new Error("The admin service is not configured. Please try again later.");
+  return apiUrl;
+}
 
 async function request<T>(path: string, init?: RequestInit, retry = true): Promise<T> {
+  const apiUrl = requireApiUrl();
   const response = await fetch(`${apiUrl}${path}`, { ...init, credentials: "include", headers: { "Content-Type": "application/json", ...init?.headers } });
   if (response.status === 401 && retry && path !== "/admin/auth/refresh") {
     const refreshed = await fetch(`${apiUrl}/admin/auth/refresh`, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" } });
@@ -16,7 +26,7 @@ async function request<T>(path: string, init?: RequestInit, retry = true): Promi
   if (!response.ok) throw new Error(payload && "message" in payload && payload.message ? payload.message : "Request could not be completed");
   return (payload as Envelope<T>).data;
 }
-async function uploadRequest(form:FormData,retry=true):Promise<CmsRecord>{const response=await fetch(`${apiUrl}/admin/cms/media/upload`,{method:"POST",body:form,credentials:"include"});if(response.status===401&&retry){const refreshed=await fetch(`${apiUrl}/admin/auth/refresh`,{method:"POST",credentials:"include",headers:{"Content-Type":"application/json"}});if(refreshed.ok)return uploadRequest(form,false)}const payload=await response.json().catch(()=>null) as Envelope<CmsRecord>|{message?:string}|null;if(!response.ok)throw new Error(payload&&"message"in payload&&payload.message?payload.message:"Image upload could not be completed");return(payload as Envelope<CmsRecord>).data}
+async function uploadRequest(form:FormData,retry=true):Promise<CmsRecord>{const apiUrl=requireApiUrl();const response=await fetch(`${apiUrl}/admin/cms/media/upload`,{method:"POST",body:form,credentials:"include"});if(response.status===401&&retry){const refreshed=await fetch(`${apiUrl}/admin/auth/refresh`,{method:"POST",credentials:"include",headers:{"Content-Type":"application/json"}});if(refreshed.ok)return uploadRequest(form,false)}const payload=await response.json().catch(()=>null) as Envelope<CmsRecord>|{message?:string}|null;if(!response.ok)throw new Error(payload&&"message"in payload&&payload.message?payload.message:"Image upload could not be completed");return(payload as Envelope<CmsRecord>).data}
 
 export const adminApi = {
   login: (email: string, password: string, rememberMe: boolean) => request<{ admin: AdminProfile }>("/admin/auth/login", { method: "POST", body: JSON.stringify({ email, password, rememberMe }) }, false),
