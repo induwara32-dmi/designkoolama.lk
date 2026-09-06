@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "scripts": {
     "dev": "next dev",
-    "build": "npm --prefix ../backend install && npm --prefix ../backend run prisma:generate && npm --prefix ../backend run build && next build",
+    "build": "npm --prefix ../backend install --include=dev && npm --prefix ../backend run prisma:generate && npm --prefix ../backend run build && next build",
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
