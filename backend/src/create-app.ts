@@ -13,14 +13,25 @@ import { shouldExposeSwagger } from "./config/deployment-security";
 // Everything the app needs configured (security headers, body limits, CORS, global
 // pipes/interceptors, Swagger) lives here so it runs identically whichever way the
 // app is hosted: `main.ts` calls this once and then binds a port for a normal
-// long-running process (local dev, or a traditional Node host); the serverless
-// entry point (`api/[...path].ts` at the repo root) calls this once per cold start
-// against an Express instance it hands straight to the platform, with no port bound
-// at all. Neither caller re-implements any of this -- only how the resulting
-// Express instance is served differs.
+// long-running process (local dev, or a traditional Node host); the Next.js App
+// Router Route Handler at frontend/src/app/api/[...path]/route.ts calls this once
+// per cold start against an Express instance it bridges Fetch-based requests into,
+// with no port ever bound. Neither caller re-implements any of this -- only how the
+// resulting Express instance is served differs.
 export async function createNestApp(
   expressInstance: Express,
 ): Promise<INestApplication> {
+  if (process.env.VERCEL) {
+    // On Vercel the request never has a real socket -- the /api/[...path] Route
+    // Handler synthesizes one to bridge Next.js's Fetch-based Request into this
+    // Express app, so req.ip would otherwise resolve to nothing and every client
+    // would collapse into the same rate-limit bucket (keyed on req.ip). Vercel's
+    // edge network sets x-forwarded-for itself and strips/overwrites whatever a
+    // client sent, so trusting it here is safe -- this must stay conditional on
+    // actually running behind that trusted proxy, since blindly trusting
+    // X-Forwarded-For elsewhere would let a client spoof its own rate-limit key.
+    expressInstance.set("trust proxy", true);
+  }
   const app = await NestFactory.create(
     AppModule,
     new ExpressAdapter(expressInstance),

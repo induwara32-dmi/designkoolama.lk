@@ -35,6 +35,35 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ["localhost", "127.0.0.1"],
   poweredByHeader: false,
   compress: true,
+  // The /api/[...path] Route Handler imports the compiled backend, whose real
+  // Prisma Client output (the query engine binary Prisma actually loads at
+  // runtime) lives in the separate, dot-prefixed node_modules/.prisma/client/
+  // directory that node_modules/@prisma/client only re-exports from -- static
+  // dependency tracing can miss that split location, which silently ships a
+  // function that boots but fails the moment it touches the database. This forces
+  // it into the trace regardless.
+  outputFileTracingIncludes: {
+    "/api/**": ["../backend/node_modules/.prisma/client/**"],
+  },
+  // NestJS's core lazily requires optional peer packages this app never installs
+  // on purpose (@nestjs/microservices, @nestjs/websockets -- only needed if you
+  // actually use those transports) inside a try/catch specifically so Node's
+  // runtime require() can fail gracefully; class-transformer does the same for its
+  // own optional ./storage submodule. Turbopack's static bundler doesn't know
+  // those requires are meant to fail softly and hard-errors the whole build trying
+  // to resolve them. Marking these as external skips bundling their internals
+  // entirely and lets Node require() them normally at runtime, exactly like the
+  // standalone backend server already does -- not a workaround, just not
+  // pretending a plain Node package needs bundling in the first place.
+  serverExternalPackages: [
+    "@nestjs/core",
+    "@nestjs/common",
+    "@nestjs/config",
+    "@nestjs/platform-express",
+    "@nestjs/swagger",
+    "@prisma/client",
+    "class-transformer",
+  ],
   images: {
     remotePatterns: [{ protocol: "https", hostname: "res.cloudinary.com",pathname:process.env.CLOUDINARY_CLOUD_NAME?`/${process.env.CLOUDINARY_CLOUD_NAME}/**`:"/__cloudinary_not_configured__/**" }],
   },
