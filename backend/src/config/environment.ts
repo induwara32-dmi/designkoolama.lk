@@ -30,7 +30,19 @@ export const environmentSchema = Joi.object({
   if (value.NODE_ENV !== "production") return value;
   for (const key of ["FRONTEND_URL", "ADMIN_FRONTEND_URL", "PASSWORD_RESET_FRONTEND_URL"] as const) {
     const candidate = value[key];
-    if (typeof candidate !== "string" || !candidate.startsWith("https://")) return helpers.error("any.invalid", { key });
+    if (typeof candidate !== "string" || !candidate.startsWith("https://")) {
+      // helpers.error("any.invalid", { key }) was silently useless here: this
+      // .custom() runs on the whole object, not a per-field schema, so Joi's
+      // default "any.invalid" template renders with the OBJECT's own label
+      // ("value") instead of the field name -- the { key } context was passed but
+      // never referenced by that template, producing the exact unhelpful
+      // "'value' contains an invalid value" error this was found from. A literal
+      // message naming the real field and its actual (non-secret) value replaces
+      // that generic template entirely.
+      return helpers.message({
+        custom: `"${key}" must start with "https://" once NODE_ENV is "production" (got: ${JSON.stringify(candidate)})`,
+      });
+    }
   }
   return value;
 }, "production transport security");
