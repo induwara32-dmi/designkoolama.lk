@@ -19,7 +19,13 @@ import { createNestApp } from "../../../../../backend/dist/create-app";
 // ones that should have reached the function). Moving the exact same logic here,
 // as a real Route Handler, is the fix.
 export const runtime = "nodejs";
-export const maxDuration = 30;
+// A real end-to-end media upload (cold Neon connection for AdminAuthGuard's
+// session lookup + Cloudinary's upload_stream round trip) was measured locally at
+// ~29s worst case -- uncomfortably close to the previous 30s ceiling. Vercel's
+// Hobby plan (this project's plan) allows up to 300s per function with fluid
+// compute, so there's no plan-imposed reason to run this close to the edge; 60s
+// gives a comfortable ~2x margin over the measured worst case.
+export const maxDuration = 60;
 
 // One NestJS app per warm container, not per request -- see the original comment
 // history in the now-removed frontend/api/[...path].ts for the full reasoning
@@ -53,8 +59,37 @@ function getServer(): Promise<Express> {
 // returned to Next.js once the real ServerResponse fires "finish".
 async function bridgeToExpress(server: Express, request: Request): Promise<Response> {
   const url = new URL(request.url);
-  const requestSocket = new Socket();
-  const req = new IncomingMessage(requestSocket);
+  // Node's own IncomingMessage internals destroy their "socket" the instant the
+  // message body is fully pushed/ended -- confirmed via instrumentation: the
+  // socket's 'close' fires 1-2ms after req.push(null), hundreds of milliseconds
+  // before this function's own cleanup ever runs (that only happens after the
+  // response finishes). In a REAL connection this is harmless because req and res
+  // share the same socket and Node only closes it once the response is also done;
+  // here req and res are deliberately given separate stand-in "sockets" (the
+  // response side already uses its own Duplex), so nothing stops this early
+  // destroy. For a small JSON body, body-parser has already synchronously finished
+  // reading before anything reacts to it. Busboy's multipart parser processes the
+  // same fully-delivered chunk asynchronously and is still mid-parse when the
+  // socket dies underneath it -- it then reports "Request aborted", exactly the
+  // error from Vercel's logs, reproduced here in under a second, nowhere near
+  // maxDuration. (A second error, "Unexpected end of form", can also come out of
+  // busboy, but only if something else drains the request stream before busboy
+  // itself attaches -- e.g. a debug listener on req's "data" event added before
+  // dispatch, which flips the stream into flowing mode and consumes it early. That
+  // is a caller bug, not something this bridge needs to guard against -- don't
+  // attach a "data"/"end" listener to `req` here for logging or anything else.)
+  // The fix for the real "aborted" bug is to stop anything from tearing this
+  // stand-in socket down early: neutralize destroy() so only this function's own
+  // end-of-request cleanup (further below) actually releases it, once the
+  // response is genuinely finished.
+  const requestSocket = new Duplex({
+    read() {},
+    write(_chunk, _encoding, callback) {
+      callback();
+    },
+  });
+  requestSocket.destroy = () => requestSocket;
+  const req = new IncomingMessage(requestSocket as unknown as Socket);
   req.method = request.method;
   req.url = `${url.pathname}${url.search}`;
 
@@ -99,13 +134,27 @@ async function bridgeToExpress(server: Express, request: Request): Promise<Respo
 
   req.push(bodyBuffer.length ? bodyBuffer : null);
   if (bodyBuffer.length) req.push(null);
+  // Node's real HTTP parser sets IncomingMessage.complete = true only once it has
+  // parsed a genuinely complete message off the wire; nothing does that here since
+  // this message is pushed by hand, bypassing that parser entirely. Readable
+  // streams auto-destroy themselves once 'end' is fully consumed, and
+  // IncomingMessage's own _destroy() emits 'aborted' whenever that happens while
+  // !complete -- traced and confirmed as the actual source of "Request aborted":
+  // every request through this bridge hit this, including trivial JSON ones, but
+  // only busboy's slower asynchronous multipart parsing was ever still mid-read
+  // when the spurious event fired. The full body was already pushed above, so
+  // this message genuinely is complete.
+  req.complete = true;
 
   try {
     server(req, res);
     await finished;
   } finally {
     res.detachSocket(responseSocket as unknown as Socket);
-    requestSocket.destroy();
+    // requestSocket.destroy() is neutralized above (see comment there) -- release
+    // it for real now, via the real Duplex.prototype.destroy, now that the response
+    // has actually finished and it's safe to do so.
+    Duplex.prototype.destroy.call(requestSocket);
     responseSocket.destroy();
   }
 
