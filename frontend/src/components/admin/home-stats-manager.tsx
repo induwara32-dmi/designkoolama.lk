@@ -2,7 +2,7 @@
 import { ArrowDown, ArrowUp, Plus, X } from "lucide-react";
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { adminApi, type CmsRecord } from "@/lib/admin-api";
-import type { HomeCmsContent } from "@/content/home-cms";
+import { homeCmsContent, type HomeCmsContent } from "@/content/home-cms";
 
 type StatItem = HomeCmsContent["stats"][number];
 type Draft = { index: number | null; value: string; suffix: string; label: string; visible: boolean };
@@ -33,7 +33,22 @@ export function HomeStatsManager() {
       const rowSections = Array.isArray(row.sections) ? (row.sections as CmsRecord[]) : [];
       const section = rowSections.find((item) => item.key === "content");
       if (section?.kind) setSectionKind(String(section.kind));
-      const content = (section?.content && typeof section.content === "object" ? section.content : {}) as Record<string, unknown>;
+      // Merged with the full default shape, not just a bare {} fallback: if no
+      // "content" section exists yet (e.g. right after a fresh seed, which only
+      // creates a differently-keyed placeholder section) -- or one exists but is
+      // missing fields another editor never touched -- saving from this screen
+      // previously persisted `extra` (whatever was loaded here) verbatim, so a
+      // once-missing hero/services/portfolioHeading/etc. got permanently written
+      // out of the section the moment any stat was added. That's what crashed the
+      // homepage (HomePage reads content.hero.eyebrow unconditionally) and why
+      // removing the stat afterward never fixed it -- the section shape itself
+      // stayed broken regardless of what the stats array held. Reproduced live
+      // against the real data: the "home" page's content section had only
+      // `{stats: []}`, and loading / crashed with exactly this TypeError.
+      const content = {
+        ...homeCmsContent,
+        ...(section?.content && typeof section.content === "object" ? section.content : {}),
+      } as Record<string, unknown>;
       const list = Array.isArray(content.stats) ? (content.stats as StatItem[]) : [];
       setStats([...list].sort((a, b) => a.order - b.order));
       setExtra(content);

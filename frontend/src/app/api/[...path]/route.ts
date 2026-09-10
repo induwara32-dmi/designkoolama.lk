@@ -125,7 +125,15 @@ async function bridgeToExpress(server: Express, request: Request): Promise<Respo
   // contain a blank line), so the first occurrence is always the true boundary.
   const raw = Buffer.concat(chunks);
   const headerBoundary = raw.indexOf("\r\n\r\n");
-  const body = headerBoundary === -1 ? raw : raw.subarray(headerBoundary + 4);
+  const rawBody = headerBoundary === -1 ? raw : raw.subarray(headerBoundary + 4);
+
+  // The Fetch spec forbids a body on "null body status" responses (204, 205, 304)
+  // -- the Response constructor throws if given one regardless of whether the body
+  // is actually empty. A conditional GET that hits an ETag match (a normal browser
+  // revalidation, not an edge case) makes Express/Nest answer 304, which crashed
+  // every such request with "Invalid response status code 304" until this check.
+  const isNullBodyStatus = res.statusCode === 204 || res.statusCode === 205 || res.statusCode === 304;
+  const body = isNullBodyStatus ? null : rawBody;
 
   return new Response(body, {
     status: res.statusCode,

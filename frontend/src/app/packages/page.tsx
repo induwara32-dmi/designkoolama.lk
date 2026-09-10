@@ -6,7 +6,13 @@ import { loadPackages,loadPageSection } from "@/services/public-content";
 import {routeUiContent,type RouteUiContent} from "@/content/route-ui-cms";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "Creative Packages | DesignKoolama",
+  // Set as {absolute: ...}, not a plain string: this title already embeds
+  // "| DesignKoolama", and the root layout's title.template ("%s | DesignKoolama")
+  // would otherwise append the suffix a second time -- the exact doubling bug
+  // found and fixed on /packages/[slug] and /services/[slug] earlier, discovered
+  // here live via a real browser check ("Creative Packages | DesignKoolama |
+  // DesignKoolama") that a plain metadata-shape review wouldn't have caught.
+  title: { absolute: "Creative Packages | DesignKoolama" },
   description:
     "Explore branding, tutor and photography packages built to grow your business.",
   alternates: { canonical: "/packages" },
