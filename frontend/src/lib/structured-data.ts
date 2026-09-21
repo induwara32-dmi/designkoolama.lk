@@ -1,7 +1,12 @@
 import { siteConfig } from "@/lib/site";
 import type { SiteContent } from "@/content/site-content";
 
-const absolute = (path: string) => new URL(path, siteConfig.url).toString();
+// Hardcoded rather than siteConfig.url: structured data URLs must always resolve
+// to the custom domain, not whatever NEXT_PUBLIC_SITE_URL happens to be set to
+// (which has previously pointed at the Vercel deployment URL).
+const SITE_URL = "https://designkoolama.lk";
+
+const absolute = (path: string) => new URL(path, SITE_URL).toString();
 
 // A function, not a static object, so this always reflects whatever is actually
 // published in the "Shared website content" CMS record -- the same source the footer
@@ -13,15 +18,15 @@ export function organizationJsonLd(site: SiteContent) {
     // LocalBusiness in addition to ProfessionalService: a Colombo-based studio with a
     // real street address and phone number qualifies for local-business rich results.
     "@type": ["ProfessionalService", "LocalBusiness"],
-    "@id": `${siteConfig.url}/#organization`,
+    "@id": `${SITE_URL}/#organization`,
     name: siteConfig.legalName,
     alternateName: siteConfig.name,
-    url: siteConfig.url,
+    url: SITE_URL,
     // No standalone logo file exists in the codebase yet (the visible "wordmark" is
     // just styled text) -- reusing the generated OG image is a reasonable placeholder
     // until a real square/rectangular logo asset is supplied.
-    logo: `${siteConfig.url}/opengraph-image`,
-    image: `${siteConfig.url}/opengraph-image`,
+    logo: `${SITE_URL}/opengraph-image`,
+    image: `${SITE_URL}/opengraph-image`,
     email: site.contact.emails[0],
     telephone: site.contact.phoneLabel,
     address: {
@@ -40,11 +45,11 @@ export function organizationJsonLd(site: SiteContent) {
 export const websiteJsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  "@id": `${siteConfig.url}/#website`,
-  url: siteConfig.url,
+  "@id": `${SITE_URL}/#website`,
+  url: SITE_URL,
   name: siteConfig.name,
   description: siteConfig.description,
-  publisher: { "@id": `${siteConfig.url}/#organization` },
+  publisher: { "@id": `${SITE_URL}/#organization` },
   inLanguage: "en",
 };
 
@@ -68,7 +73,7 @@ export function serviceJsonLd(service: { name: string; description: string; slug
     name: service.name,
     description: service.description,
     url: absolute(`/services/${service.slug}`),
-    provider: { "@id": `${siteConfig.url}/#organization` },
+    provider: { "@id": `${SITE_URL}/#organization` },
     areaServed: [{ "@type": "Country", name: "Sri Lanka" }, "Worldwide"],
   };
 }
@@ -80,8 +85,8 @@ export function creativeWorkJsonLd(project: { title: string; description: string
     name: project.title,
     description: project.description,
     url: absolute(`/portfolio/${project.slug}`),
-    creator: { "@id": `${siteConfig.url}/#organization` },
-    copyrightHolder: { "@id": `${siteConfig.url}/#organization` },
+    creator: { "@id": `${SITE_URL}/#organization` },
+    copyrightHolder: { "@id": `${SITE_URL}/#organization` },
     dateCreated: project.date,
     about: project.client,
   };

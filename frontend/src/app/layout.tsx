@@ -16,8 +16,15 @@ import {siteContent,type SiteContent} from "@/content/site-content";
 // automatically -- the exact things a launch-grade site needs from its type.
 const inter = Inter({ subsets: ["latin"], display: "swap", variable: "--font-inter" });
 
+// Hardcoded rather than siteConfig.url: metadataBase resolves every relative
+// canonical/og:url across the site (see e.g. app/about/page.tsx's
+// `alternates.canonical: "/about"`), so it must always point at the custom
+// domain, not whatever NEXT_PUBLIC_SITE_URL happens to be set to (which has
+// previously pointed at the Vercel deployment URL).
+const SITE_URL = "https://designkoolama.lk";
+
 export const metadata: Metadata = {
-  metadataBase: new URL(siteConfig.url),
+  metadataBase: new URL(SITE_URL),
   title: { default: `${siteConfig.name} — Creative Design Studio`, template: `%s | ${siteConfig.name}` },
   description: siteConfig.description,
   applicationName: siteConfig.name,
@@ -27,7 +34,10 @@ export const metadata: Metadata = {
   category: "design",
   referrer: "origin-when-cross-origin",
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
-  openGraph: { type: "website", siteName: siteConfig.name, title: siteConfig.name, description: siteConfig.description, url: siteConfig.url, locale: "en_LK" },
+  // A relative url here (like every page-level openGraph override already uses,
+  // e.g. app/about/page.tsx's `openGraph.url: "/about"`) resolves against
+  // metadataBase -- an absolute siteConfig.url would instead bypass it entirely.
+  openGraph: { type: "website", siteName: siteConfig.name, title: siteConfig.name, description: siteConfig.description, url: "/", locale: "en_LK" },
   twitter: { card: "summary_large_image", title: siteConfig.name, description: siteConfig.description },
   verification: { google: "p66kYIU1PRlsTo3Wo49C_Li5lKk62AiRlhU_GOWWOYk" },
 };
