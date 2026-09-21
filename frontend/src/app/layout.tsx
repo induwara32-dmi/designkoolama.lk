@@ -29,6 +29,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
   openGraph: { type: "website", siteName: siteConfig.name, title: siteConfig.name, description: siteConfig.description, url: siteConfig.url, locale: "en_LK" },
   twitter: { card: "summary_large_image", title: siteConfig.name, description: siteConfig.description },
+  verification: { google: "p66kYIU1PRlsTo3Wo49C_Li5lKk62AiRlhU_GOWWOYk" },
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
