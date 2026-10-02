@@ -8,7 +8,7 @@ import helmet from "helmet";
 import { json } from "express";
 import { AppModule } from "./app.module";
 import { ResponseInterceptor } from "./common/interceptors/response.interceptor";
-import { shouldExposeSwagger } from "./config/deployment-security";
+import { shouldExposeSwagger, TRUSTED_PRODUCTION_ORIGINS } from "./config/deployment-security";
 
 // Everything the app needs configured (security headers, body limits, CORS, global
 // pipes/interceptors, Swagger) lives here so it runs identically whichever way the
@@ -41,7 +41,7 @@ export async function createNestApp(
   app.enableShutdownHooks();
   app.use(helmet());
   app.use(json({ limit: "256kb" }));
-  const allowedOrigins = new Set([config.getOrThrow<string>("FRONTEND_URL")]);
+  const allowedOrigins = new Set([config.getOrThrow<string>("FRONTEND_URL"), ...TRUSTED_PRODUCTION_ORIGINS]);
   const adminOrigin = config.get<string>("ADMIN_FRONTEND_URL");
   if (adminOrigin) allowedOrigins.add(adminOrigin);
   if (config.get<string>("NODE_ENV") !== "production") {
