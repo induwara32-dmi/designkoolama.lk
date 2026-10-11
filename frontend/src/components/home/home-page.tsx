@@ -65,7 +65,7 @@ export function HomePage({
             <LinkButton
               href="#portfolio"
               variant="secondary"
-              className="rounded-full px-8 uppercase tracking-[.06em]"
+              className="view-portfolio-btn rounded-full px-8 uppercase tracking-[.06em]"
             >
               {content.hero.secondaryButton}
             </LinkButton>
