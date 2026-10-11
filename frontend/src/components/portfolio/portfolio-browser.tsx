@@ -2,8 +2,8 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { ApprovedIcon } from "@/components/ui/approved-icon";
+import { LinkButton } from "@/components/ui/button";
 import type { PortfolioCategoryCard } from "@/content/portfolio";
 
 const tones = ["rings", "squares", "hex", "orbit", "window", "triangle"];
@@ -63,9 +63,13 @@ export function PortfolioBrowser({
             <h2>{category.cardTitle || category.name}</h2>
             <p>{category.description}</p>
             {category.slug ? (
-              <Link href={`/portfolio/category/${category.slug}`}>
+              <LinkButton
+                href={`/portfolio/category/${category.slug}`}
+                variant="secondary"
+                className="explore-more-btn gap-2 rounded-full px-8 uppercase tracking-[.06em]"
+              >
                 Explore More <ArrowRight />
-              </Link>
+              </LinkButton>
             ) : (
               <span className="portfolio-link-disabled" aria-disabled="true">
                 No published project
