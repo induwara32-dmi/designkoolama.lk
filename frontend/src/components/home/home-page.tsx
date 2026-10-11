@@ -42,7 +42,7 @@ export function HomePage({
             {content.hero.eyebrow}
           </motion.p>
           <motion.h1 variants={staggerItem} className="hero-title mt-9">
-            {content.hero.title}
+            {content.hero.title}{" "}
             <br />
             <span>{content.hero.accent}</span>
           </motion.h1>
