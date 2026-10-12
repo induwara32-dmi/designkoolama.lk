@@ -3,7 +3,7 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { Reveal } from "@/components/motion/reveal";
 import { InnerHero } from "@/components/pages/inner-hero";
-import { LinkButton } from "@/components/ui/button";
+import { LinkButton, linkButtonClassName } from "@/components/ui/button";
 import { SectionHeading } from "@/components/ui/section-heading";
 import type { PackageExperience } from "@/content/packages";
 import type {RouteUiContent} from "@/content/route-ui-cms";
@@ -36,9 +36,9 @@ export function PackagesPage({ experiences,copy }: { experiences: PackageExperie
                   <span>0{index + 1}</span>
                   <h2>{item.name}</h2>
                   <p>{item.description}</p>
-                  <strong>
+                  <span className={linkButtonClassName("secondary", "explore-more-btn gap-2 rounded-full px-8 uppercase tracking-[.06em]")}>
                     {copy.exploreLabel} <ArrowRight />
-                  </strong>
+                  </span>
                 </Link>
               </Reveal>
             ))}
