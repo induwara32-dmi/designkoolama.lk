@@ -49,6 +49,7 @@ export function AboutPage({content}: {content: AboutCmsContent}) {
                 <span className="founder-quote">&ldquo;</span>
                 <h2 className="section-title">{content.founder.messageHeading}</h2>
                 {content.founder.messageParagraphs.map(item => <p key={item}>{item}</p>)}
+                <Image src="/signature-dineth-trimmed.png" alt="Signature of Dineth Pabasara" width={500} height={337} className="mt-8 block h-[60px] w-auto lg:h-20"/>
                 <strong>{content.founder.signatureName}</strong>
                 <small>{content.founder.signatureTitle}</small>
               </div>
