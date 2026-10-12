@@ -123,7 +123,7 @@ export const aboutCmsContent: AboutCmsContent = {
     address: "No. 12, Delgaswatta, Denagama East, Denagama\nMatara, Sri Lanka",
     email: "designkoolamapvtltd@gmail.com",
     phone: "+94 76 353 6554",
-    hours: "Mon – Fri: 9:00 AM – 6:00 PM · Sat – Sun: Closed",
+    hours: "Mon – Sun: 9:00 AM – 6:00 PM",
   },
   advantage: {
     eyebrow: "Our Advantage",

@@ -5,7 +5,7 @@ export const contactContent = {
     { title: "Office Address", lines: ["No. 12, Delgaswatta, Denagama East, Denagama,", "Matara, Sri Lanka"], icon: MapPin },
     { title: "Email Us", lines: ["hello@designkoolama.com", "support@designkoolama.com"], icon: Mail },
     { title: "Call Us", lines: ["+94 77 000 0000"], icon: Phone },
-    { title: "Operating Hours", lines: ["Monday – Friday · 9:00 AM – 6:00 PM", "Saturday – By Appointment"], icon: Clock3 },
+    { title: "Operating Hours", lines: ["Mon – Sun: 9:00 AM – 6:00 PM"], icon: Clock3 },
   ],
   faqs: [
     { question: "How long does a typical project take?", answer: "Project timelines vary depending on scope and complexity. A brand identity project typically takes 2–4 weeks, while larger digital projects can take 4–8 weeks. We provide a detailed timeline at the start." },
