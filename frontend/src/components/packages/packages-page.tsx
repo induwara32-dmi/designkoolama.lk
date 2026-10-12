@@ -43,14 +43,6 @@ export function PackagesPage({ experiences,copy }: { experiences: PackageExperie
               </Reveal>
             ))}
           </div>
-          <div className="package-stats">
-            {copy.stats.filter(item=>item.visible).sort((a,b)=>a.order-b.order).map(item => (
-              <div key={item.label}>
-                <strong>{item.value}</strong>
-                <span>{item.label}</span>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
       <section className="section service-dark">

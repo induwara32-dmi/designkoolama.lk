@@ -27,6 +27,7 @@ export function HomePage({
   testimonials: PublicTestimonial[];
 }) {
   const reduce = useReducedMotion();
+  const hasStats = content.stats.some((item) => item.visible);
   return (
     <>
       <section className="hero-section">
@@ -76,6 +77,15 @@ export function HomePage({
           <ArrowDown />
         </a>
       </section>
+      {hasStats && (
+        <section className="home-stats bg-charcoal">
+          <div className="site-container">
+            <Reveal>
+              <StatsBar items={content.stats} />
+            </Reveal>
+          </div>
+        </section>
+      )}
       <section id="services" className="section bg-charcoal">
         <div className="site-container">
           <Reveal>
@@ -107,9 +117,6 @@ export function HomePage({
                 </motion.div>
               ))}
           </motion.div>
-          <Reveal>
-            <StatsBar items={content.stats} />
-          </Reveal>
         </div>
       </section>
       <section id="portfolio" className="section bg-black">

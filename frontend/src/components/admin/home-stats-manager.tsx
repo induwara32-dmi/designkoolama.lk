@@ -136,7 +136,7 @@ export function HomeStatsManager() {
       <header className="admin-page-head">
         <p>Home content</p>
         <h1>Stats bar</h1>
-        <span>The count-up numbers shown under Services on the homepage. Status: {pageStatus === "PUBLISHED" ? "Published" : "Draft"}.</span>
+        <span>The count-up numbers shown between the hero and Services on the homepage. Status: {pageStatus === "PUBLISHED" ? "Published" : "Draft"}.</span>
       </header>
       <div className="admin-cms-toolbar">
         <button onClick={() => void load()} aria-label="Refresh">Refresh</button>
