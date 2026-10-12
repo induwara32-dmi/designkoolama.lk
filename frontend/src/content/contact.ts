@@ -2,7 +2,7 @@ import { Clock3, Mail, MapPin, Phone } from "lucide-react";
 
 export const contactContent = {
   details: [
-    { title: "Office Address", lines: ["No. 460, Thalawathugoda Road, Madiwela,", "Sri Jayawardenepura Kotte, Colombo, Sri Lanka"], icon: MapPin },
+    { title: "Office Address", lines: ["No. 12, Delgaswatta, Denagama East, Denagama,", "Matara, Sri Lanka"], icon: MapPin },
     { title: "Email Us", lines: ["hello@designkoolama.com", "support@designkoolama.com"], icon: Mail },
     { title: "Call Us", lines: ["+94 77 000 0000"], icon: Phone },
     { title: "Operating Hours", lines: ["Monday – Friday · 9:00 AM – 6:00 PM", "Saturday – By Appointment"], icon: Clock3 },

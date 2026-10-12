@@ -12,7 +12,7 @@ const sections: readonly LegalSection[] = [
   {
     heading: "Who we are",
     paragraphs: [
-      "DesignKoolama (Pvt) Ltd. (\"DesignKoolama\", \"we\", \"us\", or \"our\") is a creative design studio based in Colombo, Sri Lanka. This Privacy Policy explains what information we collect through this website, how we use it, and the choices you have.",
+      "DesignKoolama (Pvt) Ltd. (\"DesignKoolama\", \"we\", \"us\", or \"our\") is a creative design studio based in Matara, Sri Lanka. This Privacy Policy explains what information we collect through this website, how we use it, and the choices you have.",
       "By using this website or submitting a form to us, you agree to the practices described in this policy.",
     ],
   },

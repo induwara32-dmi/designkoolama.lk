@@ -15,7 +15,7 @@ const absolute = (path: string) => new URL(path, SITE_URL).toString();
 export function organizationJsonLd(site: SiteContent) {
   return {
     "@context": "https://schema.org",
-    // LocalBusiness in addition to ProfessionalService: a Colombo-based studio with a
+    // LocalBusiness in addition to ProfessionalService: a Matara-based studio with a
     // real street address and phone number qualifies for local-business rich results.
     "@type": ["ProfessionalService", "LocalBusiness"],
     "@id": `${SITE_URL}/#organization`,
@@ -32,8 +32,8 @@ export function organizationJsonLd(site: SiteContent) {
     address: {
       "@type": "PostalAddress",
       streetAddress: site.contact.address[0] ?? "",
-      addressLocality: "Sri Jayawardenepura Kotte",
-      addressRegion: "Colombo",
+      addressLocality: "Matara",
+      addressRegion: "Southern Province",
       addressCountry: "LK",
     },
     sameAs: site.social

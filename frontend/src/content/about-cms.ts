@@ -67,9 +67,9 @@ export const aboutCmsContent: AboutCmsContent = {
         iconKey: "flag",
       },
       {
-        title: "Based in Colombo, Sri Lanka",
+        title: "Based in Matara, Sri Lanka",
         description:
-          "Headquartered in the heart of Sri Lanka's commercial capital, we bring local insight combined with a globally inspired design perspective.",
+          "Headquartered in Matara on Sri Lanka's southern coast, we bring local insight combined with a globally inspired design perspective.",
         iconKey: "map-pin",
       },
       {
@@ -120,7 +120,7 @@ export const aboutCmsContent: AboutCmsContent = {
   location: {
     eyebrow: "Our Location",
     title: "Find Us & Get In Touch",
-    address: "No. 460, Thalawathugoda Road, Madiwela\nSri Jayawardenepura Kotte, Colombo, Sri Lanka",
+    address: "No. 12, Delgaswatta, Denagama East, Denagama\nMatara, Sri Lanka",
     email: "designkoolamapvtltd@gmail.com",
     phone: "+94 76 353 6554",
     hours: "Mon – Fri: 9:00 AM – 6:00 PM · Sat – Sun: Closed",

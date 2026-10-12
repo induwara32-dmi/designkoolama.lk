@@ -11,3 +11,5 @@ export const siteConfig = {
     { label: "Contact", href: "/contact" },
   ],
 } as const;
+
+export const GOOGLE_MAPS_URL = "https://maps.app.goo.gl/RC7NegLoTp8fz6am6";

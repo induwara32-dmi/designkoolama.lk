@@ -4,7 +4,7 @@ export const aboutContent = {
   hero: { eyebrow: "About Us", title: "Designing Brands That", accent: "Inspire,", tail: "Connect, and Grow.", description: "We are a dedicated team of creative professionals based in Sri Lanka, passionate about delivering exceptional design solutions that elevate brands and create lasting impressions." },
   facts: [
     { title: "Founded in 2022", description: "A young and dynamic studio that emerged with a clear mission — to redefine creative design in Sri Lanka and set new standards of excellence.", icon: Flag },
-    { title: "Based in Colombo, Sri Lanka", description: "Headquartered in the heart of Sri Lanka's commercial capital, we bring local insight combined with a globally inspired design perspective.", icon: MapPin },
+    { title: "Based in Matara, Sri Lanka", description: "Headquartered in Matara on Sri Lanka's southern coast, we bring local insight combined with a globally inspired design perspective.", icon: MapPin },
     { title: "Serving Clients Worldwide", description: "Though rooted locally, our work has reached clients across Asia, the Middle East, and beyond — delivering premium creative solutions without borders.", icon: Globe2 },
   ],
   values: [
