@@ -199,6 +199,14 @@ export class AdminCmsService {
     }
     return {cardMediaId,bannerMediaId,galleryImages};
   }
+  private async packageCardMediaId(data: Record<string, unknown>) {
+    const cardMediaId = optionalText(data, "cardMediaId", 50);
+    if (cardMediaId) {
+      const count = await this.prisma.mediaAsset.count({ where: { id: cardMediaId, deletedAt: null, kind: MediaKind.IMAGE } });
+      if (!count) throw new BadRequestException("Select a valid card image from the Media Library.");
+    }
+    return cardMediaId;
+  }
   private async portfolioRelations(data: Record<string, unknown>) {
     const categoryId = text(data, "categoryId", 50);
     const serviceId = optionalText(data, "serviceId", 50);
@@ -381,7 +389,7 @@ export class AdminCmsService {
         return this.prisma.packageCategory.findMany({
           where: { isActive: true },
           orderBy: { displayOrder: "asc" },
-          include: { _count: { select: { packages: true } } },
+          include: { cardMedia: true, _count: { select: { packages: true } } },
         });
       case "packages":
         return this.prisma.package.findMany({
@@ -593,6 +601,7 @@ export class AdminCmsService {
             headline: optionalText(data, "headline", 300),
             description: optionalText(data, "description"),
             content,
+            cardMediaId: await this.packageCardMediaId(data),
             displayOrder: integer(data, "displayOrder"),
             isActive: boolean(data, "isActive", true),
           },
@@ -899,6 +908,9 @@ export class AdminCmsService {
             ...(data.content !== undefined
               ? { content: object(data, "content") }
               : {}),
+            ...(data.cardMediaId !== undefined
+              ? { cardMediaId: await this.packageCardMediaId(data) }
+              : {}),
             ...(data.displayOrder !== undefined
               ? { displayOrder: integer(data, "displayOrder") }
               : {}),
@@ -1170,6 +1182,7 @@ export class AdminCmsService {
               select: {
                 portfolioUses: true,
                 categoryCardUses: true,
+                packageCategoryCardUses: true,
                 testimonialUses: true,
                 quoteAttachments: true,
               },

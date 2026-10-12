@@ -1,5 +1,6 @@
 "use client";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { Reveal } from "@/components/motion/reveal";
 import { InnerHero } from "@/components/pages/inner-hero";
@@ -33,12 +34,27 @@ export function PackagesPage({ experiences,copy }: { experiences: PackageExperie
             {experiences.map((item, index) => (
               <Reveal key={item.slug} delay={index * 0.08}>
                 <Link href={`/packages/${item.slug}`}>
-                  <span>0{index + 1}</span>
-                  <h2>{item.name}</h2>
-                  <p>{item.description}</p>
-                  <span className={linkButtonClassName("secondary", "explore-more-btn gap-2 rounded-full px-8 uppercase tracking-[.06em]")}>
-                    {copy.exploreLabel} <ArrowRight />
-                  </span>
+                  {item.cardMedia?.secureUrl || item.cardMedia?.url ? (
+                    <div className="case-art">
+                      <Image
+                        src={item.cardMedia.secureUrl || item.cardMedia.url}
+                        alt={item.cardMedia.altText ?? ""}
+                        fill
+                        sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw"
+                        style={{ objectFit: "cover" }}
+                      />
+                    </div>
+                  ) : (
+                    <div className="case-art case-art-rings" aria-hidden="true"><i /><i /><i /></div>
+                  )}
+                  <div className="category-card-body">
+                    <span>0{index + 1}</span>
+                    <h2>{item.name}</h2>
+                    <p>{item.description}</p>
+                    <span className={linkButtonClassName("secondary", "explore-more-btn gap-2 rounded-full px-8 uppercase tracking-[.06em]")}>
+                      {copy.exploreLabel} <ArrowRight />
+                    </span>
+                  </div>
                 </Link>
               </Reveal>
             ))}

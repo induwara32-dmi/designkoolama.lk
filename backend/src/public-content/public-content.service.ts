@@ -321,6 +321,7 @@ export class PublicContentService {
         description: true,
         content: true,
         updatedAt: true,
+        cardMedia: { select: { url: true, secureUrl: true, altText: true, deletedAt: true } },
         packages: {
           where: {
             isActive: true,
@@ -396,7 +397,9 @@ export class PublicContentService {
         order: Number(item.displayOrder ?? 0) + 1,
         active: true,
       }));
-      return { ...category, content: { ...base, tiers }, packages };
+      const { cardMedia: media, ...row } = category;
+      const cardMedia = media && !media.deletedAt ? { url: media.url, secureUrl: media.secureUrl, altText: media.altText } : null;
+      return { ...row, content: { ...base, cardMedia, tiers }, packages };
     });
   }
   async package(slug: string) {

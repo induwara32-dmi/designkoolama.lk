@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
   // Pooled connection (Neon's PgBouncer endpoint, or add ?pgbouncer=true) -- every
   // Vercel Serverless Function invocation runs in its own process and opens its own
   // Prisma connection, so a direct (unpooled) Postgres connection here would let
@@ -257,17 +257,19 @@ model PortfolioMedia {
 }
 
 model PackageCategory {
-  id           String    @id @default(uuid()) @db.Uuid
-  slug         String    @unique
+  id           String      @id @default(uuid()) @db.Uuid
+  slug         String      @unique
   name         String
   headline     String?
   description  String?
-  content      Json      @default("{}")
-  displayOrder Int       @default(0)
-  isActive     Boolean   @default(true)
+  content      Json        @default("{}")
+  cardMediaId  String?     @db.Uuid
+  cardMedia    MediaAsset? @relation("PackageCategoryCardMedia", fields: [cardMediaId], references: [id], onDelete: SetNull)
+  displayOrder Int         @default(0)
+  isActive     Boolean     @default(true)
   packages     Package[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 }
 
 model Package {
@@ -324,28 +326,29 @@ model Testimonial {
 }
 
 model MediaAsset {
-  id                  String                          @id @default(uuid()) @db.Uuid
-  providerId          String                          @unique
-  kind                MediaKind                       @default(IMAGE)
-  url                 String
-  secureUrl           String
-  title               String
-  altText             String
-  caption             String?
-  folder              String?
-  mimeType            String
-  bytes               Int
-  width               Int?
-  height              Int?
-  deletedAt           DateTime?
-  createdAt           DateTime                        @default(now())
-  updatedAt           DateTime                        @updatedAt
-  portfolioUses       PortfolioMedia[]
-  testimonialUses     Testimonial[]
-  quoteAttachments    QuoteAttachment[]
-  categoryCardUses    PortfolioCategory[]             @relation("PortfolioCategoryCardMedia")
-  categoryBannerUses  PortfolioCategory[]             @relation("PortfolioCategoryBannerMedia")
-  categoryGalleryUses PortfolioCategoryGalleryImage[]
+  id                      String                          @id @default(uuid()) @db.Uuid
+  providerId              String                          @unique
+  kind                    MediaKind                       @default(IMAGE)
+  url                     String
+  secureUrl               String
+  title                   String
+  altText                 String
+  caption                 String?
+  folder                  String?
+  mimeType                String
+  bytes                   Int
+  width                   Int?
+  height                  Int?
+  deletedAt               DateTime?
+  createdAt               DateTime                        @default(now())
+  updatedAt               DateTime                        @updatedAt
+  portfolioUses           PortfolioMedia[]
+  testimonialUses         Testimonial[]
+  quoteAttachments        QuoteAttachment[]
+  categoryCardUses        PortfolioCategory[]             @relation("PortfolioCategoryCardMedia")
+  packageCategoryCardUses PackageCategory[]               @relation("PackageCategoryCardMedia")
+  categoryBannerUses      PortfolioCategory[]             @relation("PortfolioCategoryBannerMedia")
+  categoryGalleryUses     PortfolioCategoryGalleryImage[]
 
   @@index([folder, createdAt])
 }

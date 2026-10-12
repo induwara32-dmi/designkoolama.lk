@@ -82,6 +82,7 @@ export class MediaUploadService {
             categoryCardUses: true,
             categoryBannerUses: true,
             categoryGalleryUses: true,
+            packageCategoryCardUses: true,
             testimonialUses: true,
             quoteAttachments: true,
           },

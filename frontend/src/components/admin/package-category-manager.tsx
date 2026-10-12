@@ -1,23 +1,33 @@
 "use client";
-import { ArrowDown, ArrowUp, Plus, X } from "lucide-react";
+import Image from "next/image";
+import { ArrowDown, ArrowUp, ImageIcon, Plus, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { adminApi, type CmsRecord } from "@/lib/admin-api";
 
-type Draft = { id: string; name: string; description: string; slug: string; displayOrder: number };
+type Draft = { id: string; name: string; description: string; slug: string; displayOrder: number; cardMediaId: string; cardAltText: string };
 const slugify = (value: string) => value.toLowerCase().trim().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-const fromRow = (row: CmsRecord): Draft => ({ id: row.id, name: String(row.name ?? ""), description: String(row.description ?? ""), slug: String(row.slug ?? ""), displayOrder: Number(row.displayOrder ?? 0) });
+const fromRow = (row: CmsRecord): Draft => ({ id: row.id, name: String(row.name ?? ""), description: String(row.description ?? ""), slug: String(row.slug ?? ""), displayOrder: Number(row.displayOrder ?? 0), cardMediaId: String(row.cardMediaId ?? ""), cardAltText: String((row.cardMedia as { altText?: unknown } | null | undefined)?.altText ?? "") });
 const packageCount = (row: CmsRecord) => Number((row._count as { packages?: number } | undefined)?.packages ?? 0);
+const imageUrl = (asset: CmsRecord | undefined) => String(asset?.secureUrl ?? asset?.url ?? "");
+const imageName = (asset: CmsRecord | undefined) => String(asset?.title ?? asset?.altText ?? "Uploaded image");
+const imageTypes = "image/jpeg,image/png,image/webp,image/avif";
 
 export function PackageCategoryManager() {
   const [rows, setRows] = useState<CmsRecord[]>([]);
+  const [media, setMedia] = useState<CmsRecord[]>([]);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [libraryOpen, setLibraryOpen] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const nameFieldRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
-    try { setRows(await adminApi.cmsList("package-categories", "")); }
+    try {
+      const [categories, assets] = await Promise.all([adminApi.cmsList("package-categories", ""), adminApi.cmsList("media", "").catch(() => [] as CmsRecord[])]);
+      setRows(categories); setMedia(assets);
+    }
     catch (cause) { setError(cause instanceof Error ? cause.message : "Package categories could not be loaded."); }
   }, []);
   useEffect(() => { void load(); }, [load]);
@@ -34,15 +44,38 @@ export function PackageCategoryManager() {
   }, [isEditorOpen]);
 
   function open(row?: CmsRecord) {
-    setDraft(row ? fromRow(row) : { id: "", name: "", description: "", slug: "", displayOrder: rows.length });
-    setError(""); setSuccess("");
+    setDraft(row ? fromRow(row) : { id: "", name: "", description: "", slug: "", displayOrder: rows.length, cardMediaId: "", cardAltText: "" });
+    setError(""); setSuccess(""); setLibraryOpen(false);
+  }
+
+  function selectCard(asset: CmsRecord) {
+    setDraft((current) => current ? { ...current, cardMediaId: asset.id, cardAltText: String(asset.altText ?? "") } : current);
+    setLibraryOpen(false);
+  }
+
+  async function uploadCard(file: File | undefined) {
+    if (!file || !draft) return;
+    setUploading(true); setError("");
+    try {
+      const body = new FormData();
+      body.set("file", file);
+      body.set("altText", draft.cardAltText.trim() || `${draft.name.trim() || "Package category"} card image`);
+      const asset = await adminApi.uploadMedia(body);
+      setMedia((current) => [asset, ...current.filter((item) => item.id !== asset.id)]);
+      selectCard(asset);
+      setSuccess("Card image uploaded. Select Save Changes to put it on the site.");
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "The card image could not be uploaded. Your changes are still here."); }
+    finally { setUploading(false); }
   }
 
   async function save() {
     if (!draft) return;
     setBusy(true); setError("");
     try {
-      const data = { name: draft.name.trim(), description: draft.description.trim(), slug: draft.slug.trim() || slugify(draft.name), displayOrder: draft.displayOrder };
+      const card = media.find((item) => item.id === draft.cardMediaId);
+      const altText = draft.cardAltText.trim();
+      if (card && altText && altText !== String(card.altText ?? "")) await adminApi.cmsUpdate("media", card.id, { altText });
+      const data = { name: draft.name.trim(), description: draft.description.trim(), slug: draft.slug.trim() || slugify(draft.name), displayOrder: draft.displayOrder, cardMediaId: draft.cardMediaId || null };
       if (draft.id) await adminApi.cmsUpdate("package-categories", draft.id, data);
       else await adminApi.cmsCreate("package-categories", data);
       setSuccess("Package category saved and live on the site.");
@@ -113,6 +146,32 @@ export function PackageCategoryManager() {
           <label>Description<textarea value={draft.description} required onChange={(event) => setDraft({ ...draft, description: event.target.value })} /></label>
           <label>Slug (used in the page URL)<input value={draft.slug} required pattern="[a-z0-9]+(-[a-z0-9]+)*" onChange={(event) => setDraft({ ...draft, slug: slugify(event.target.value) })} /></label>
           <label>Order<input type="number" value={draft.displayOrder} onChange={(event) => setDraft({ ...draft, displayOrder: Number(event.target.value) })} /></label>
+          <fieldset><legend>Card image</legend>
+            <p className="admin-hint">Recommended 1600x1000 px (16:10), JPG or WebP, subject centred, minimum 1200x750.</p>
+            {(() => {
+              const card = media.find((item) => item.id === draft.cardMediaId);
+              const uploadInput = <input className="sr-only" type="file" accept={imageTypes} disabled={uploading} onChange={(event) => { void uploadCard(event.target.files?.[0]); event.target.value = ""; }} />;
+              return card ? <div className="admin-simple-banner">
+                <Image src={imageUrl(card)} alt={draft.cardAltText || imageName(card)} width={640} height={400} unoptimized />
+                <strong>{imageName(card)}</strong>
+                <div>
+                  <label className="admin-primary">{uploading ? "Uploading..." : "Change Image"}{uploadInput}</label>
+                  <button type="button" onClick={() => setLibraryOpen((value) => !value)}>Select from Media Library</button>
+                  <button type="button" onClick={() => { if (confirm("Remove this card image? The shared Media Library image will be preserved.")) setDraft({ ...draft, cardMediaId: "", cardAltText: "" }); }}>Remove Image</button>
+                </div>
+              </div> : <div className="admin-simple-media-empty">
+                <ImageIcon />
+                <p>{draft.cardMediaId ? "The selected image is no longer in the Media Library." : "No card image yet. The card shows the default artwork."}</p>
+                <label className="admin-primary">{uploading ? "Uploading..." : "Add Card Image"}{uploadInput}</label>
+                <button type="button" onClick={() => setLibraryOpen((value) => !value)}>Select from Media Library</button>
+              </div>;
+            })()}
+            {draft.cardMediaId && <label>Image alt text<input value={draft.cardAltText} required maxLength={500} onChange={(event) => setDraft({ ...draft, cardAltText: event.target.value })} /><span className="admin-hint">Describes the image for screen readers. It is saved on the image in the Media Library.</span></label>}
+            {libraryOpen && <section className="admin-simple-library" aria-label="Media Library">
+              <div><h3>Select from Media Library</h3><button type="button" onClick={() => setLibraryOpen(false)} aria-label="Close Media Library"><X /></button></div>
+              <div>{media.length === 0 ? <p>No images in the Media Library yet.</p> : media.map((asset) => <button type="button" key={asset.id} onClick={() => selectCard(asset)}><Image src={imageUrl(asset)} alt={String(asset.altText ?? imageName(asset))} width={160} height={110} unoptimized /><span>{imageName(asset)}</span></button>)}</div>
+            </section>}
+          </fieldset>
           <div className="admin-modal-actions"><button className="admin-primary" type="submit" disabled={busy}>{draft.id ? "Save Changes" : "Add Category"}</button><button type="button" onClick={() => setDraft(null)}>Cancel</button></div>
         </form>
       </aside>
