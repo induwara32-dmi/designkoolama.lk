@@ -13,8 +13,7 @@ export function AboutPage({content}: {content: AboutCmsContent}) {
   const h = content.hero;
   return (
     <>
-      <InnerHero eyebrow={h.eyebrow} title={h.title} accent={h.accent} description={h.description}>
-        <h2 className="inner-hero-tail">{h.tail}</h2>
+      <InnerHero eyebrow={h.eyebrow} title={h.title} accent={h.accent} tail={h.tail} description={h.description}>
         <LinkButton href={h.buttonHref} className="mt-10 rounded-full px-9 uppercase tracking-wider">{h.buttonLabel}</LinkButton>
         <div className="hero-badges">{content.badges.map(item => <span key={item.label}><ApprovedIcon iconKey={item.iconKey}/>{item.label}</span>)}</div>
       </InnerHero>
