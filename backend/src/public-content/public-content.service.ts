@@ -371,9 +371,9 @@ export class PublicContentService {
       const base = {
         slug: category.slug,
         name: category.name,
-        title: stringValue(rawContent.title) || category.headline || category.name,
+        title: category.headline || stringValue(rawContent.title) || category.name,
         description:
-          stringValue(rawContent.description) || category.description || "",
+          category.description || stringValue(rawContent.description) || "",
         benefits: Array.isArray(rawContent.benefits) ? rawContent.benefits : [],
         seoTitle:
           stringValue(rawContent.seoTitle) || `${category.name} | DesignKoolama`,

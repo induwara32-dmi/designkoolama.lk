@@ -146,7 +146,9 @@ async function seed() {
       },
     });
   }
-  for (const [categoryOrder, experience] of packageExperiences.entries()) {
+  // Categories are admin-managed (renamed slugs, edited text): only seed an empty table so a re-run can't re-create or overwrite them.
+  const seedPackageCategories = (await prisma.packageCategory.count()) === 0;
+  for (const [categoryOrder, experience] of seedPackageCategories ? packageExperiences.entries() : []) {
     const category = await prisma.packageCategory.upsert({
       where: { slug: experience.slug },
       update: {

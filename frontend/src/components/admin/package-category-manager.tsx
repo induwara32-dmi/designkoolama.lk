@@ -4,9 +4,11 @@ import { ArrowDown, ArrowUp, ImageIcon, Plus, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { adminApi, type CmsRecord } from "@/lib/admin-api";
 
-type Draft = { id: string; name: string; description: string; slug: string; displayOrder: number; cardMediaId: string; cardAltText: string };
+type Draft = { id: string; name: string; headline: string; description: string; seoTitle: string; metaDescription: string; content: Record<string, unknown>; slug: string; displayOrder: number; cardMediaId: string; cardAltText: string };
 const slugify = (value: string) => value.toLowerCase().trim().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-const fromRow = (row: CmsRecord): Draft => ({ id: row.id, name: String(row.name ?? ""), description: String(row.description ?? ""), slug: String(row.slug ?? ""), displayOrder: Number(row.displayOrder ?? 0), cardMediaId: String(row.cardMediaId ?? ""), cardAltText: String((row.cardMedia as { altText?: unknown } | null | undefined)?.altText ?? "") });
+const contentOf = (row: CmsRecord) => (row.content && typeof row.content === "object" && !Array.isArray(row.content) ? row.content as Record<string, unknown> : {});
+const fromRow = (row: CmsRecord): Draft => { const content = contentOf(row); return { id: row.id, name: String(row.name ?? ""), headline: String(row.headline ?? ""), description: String(row.description ?? ""), seoTitle: typeof content.seoTitle === "string" ? content.seoTitle : "", metaDescription: typeof content.metaDescription === "string" ? content.metaDescription : "", content, slug: String(row.slug ?? ""), displayOrder: Number(row.displayOrder ?? 0), cardMediaId: String(row.cardMediaId ?? ""), cardAltText: String((row.cardMedia as { altText?: unknown } | null | undefined)?.altText ?? "") }; };
+const emptyDraft = (displayOrder: number): Draft => ({ id: "", name: "", headline: "", description: "", seoTitle: "", metaDescription: "", content: {}, slug: "", displayOrder, cardMediaId: "", cardAltText: "" });
 const packageCount = (row: CmsRecord) => Number((row._count as { packages?: number } | undefined)?.packages ?? 0);
 const imageUrl = (asset: CmsRecord | undefined) => String(asset?.secureUrl ?? asset?.url ?? "");
 const imageName = (asset: CmsRecord | undefined) => String(asset?.title ?? asset?.altText ?? "Uploaded image");
@@ -44,7 +46,7 @@ export function PackageCategoryManager() {
   }, [isEditorOpen]);
 
   function open(row?: CmsRecord) {
-    setDraft(row ? fromRow(row) : { id: "", name: "", description: "", slug: "", displayOrder: rows.length, cardMediaId: "", cardAltText: "" });
+    setDraft(row ? fromRow(row) : emptyDraft(rows.length));
     setError(""); setSuccess(""); setLibraryOpen(false);
   }
 
@@ -75,7 +77,8 @@ export function PackageCategoryManager() {
       const card = media.find((item) => item.id === draft.cardMediaId);
       const altText = draft.cardAltText.trim();
       if (card && altText && altText !== String(card.altText ?? "")) await adminApi.cmsUpdate("media", card.id, { altText });
-      const data = { name: draft.name.trim(), description: draft.description.trim(), slug: draft.slug.trim() || slugify(draft.name), displayOrder: draft.displayOrder, cardMediaId: draft.cardMediaId || null };
+      const content = { ...draft.content, seoTitle: draft.seoTitle.trim(), metaDescription: draft.metaDescription.trim() };
+      const data = { name: draft.name.trim(), headline: draft.headline.trim(), description: draft.description.trim(), content, slug: draft.slug.trim() || slugify(draft.name), displayOrder: draft.displayOrder, cardMediaId: draft.cardMediaId || null };
       if (draft.id) await adminApi.cmsUpdate("package-categories", draft.id, data);
       else await adminApi.cmsCreate("package-categories", data);
       setSuccess("Package category saved and live on the site.");
@@ -143,7 +146,14 @@ export function PackageCategoryManager() {
         <div className="admin-panel-title"><h2>{draft.id ? "Edit Package Category" : "Add Package Category"}</h2><button type="button" onClick={() => setDraft(null)} aria-label="Close"><X /></button></div>
         <form className="admin-form" onSubmit={(event) => { event.preventDefault(); void save(); }}>
           <label>Title<input ref={nameFieldRef} value={draft.name} required onChange={(event) => { const oldAuto = !draft.slug || draft.slug === slugify(draft.name); setDraft({ ...draft, name: event.target.value, slug: oldAuto ? slugify(event.target.value) : draft.slug }); }} /></label>
-          <label>Description<textarea value={draft.description} required onChange={(event) => setDraft({ ...draft, description: event.target.value })} /></label>
+          <label>Hero title<input value={draft.headline} maxLength={300} aria-describedby="pkg-hero-hint" onChange={(event) => setDraft({ ...draft, headline: event.target.value })} /></label>
+          <p className="admin-hint" id="pkg-hero-hint">The large heading on this category&rsquo;s page. Leave empty to use the Title.</p>
+          <label>Description<textarea value={draft.description} required aria-describedby="pkg-description-hint" onChange={(event) => setDraft({ ...draft, description: event.target.value })} /></label>
+          <p className="admin-hint" id="pkg-description-hint">Shown on the category card and under the hero title.</p>
+          <label>SEO title<input value={draft.seoTitle} maxLength={300} aria-describedby="pkg-seo-hint" onChange={(event) => setDraft({ ...draft, seoTitle: event.target.value })} /></label>
+          <p className="admin-hint" id="pkg-seo-hint">Browser tab and search result title. Aim for about 60 characters (now {draft.seoTitle.trim().length}). Leave empty to use &ldquo;{draft.name.trim() || "Title"} | DesignKoolama&rdquo;.</p>
+          <label>Meta description<textarea value={draft.metaDescription} maxLength={500} aria-describedby="pkg-meta-hint" onChange={(event) => setDraft({ ...draft, metaDescription: event.target.value })} /></label>
+          <p className="admin-hint" id="pkg-meta-hint">Search result summary. Aim for about 160 characters (now {draft.metaDescription.trim().length}). Leave empty to use the Description.</p>
           <label>Slug (used in the page URL)<input value={draft.slug} required pattern="[a-z0-9]+(-[a-z0-9]+)*" onChange={(event) => setDraft({ ...draft, slug: slugify(event.target.value) })} /></label>
           <label>Order<input type="number" value={draft.displayOrder} onChange={(event) => setDraft({ ...draft, displayOrder: Number(event.target.value) })} /></label>
           <fieldset><legend>Card image</legend>

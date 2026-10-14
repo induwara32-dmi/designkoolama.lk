@@ -284,6 +284,11 @@ export class AdminCmsService {
       data: { isPopular: false },
     });
   }
+  private rethrowPackageCategoryError(error: unknown): never {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002")
+      throw new ConflictException("Another package category already uses this slug. Change that category's slug first, then try again.");
+    throw error;
+  }
   private rethrowPackageMutationError(error: unknown): never {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2002")
@@ -605,7 +610,7 @@ export class AdminCmsService {
             displayOrder: integer(data, "displayOrder"),
             isActive: boolean(data, "isActive", true),
           },
-        });
+        }).catch((error: unknown) => this.rethrowPackageCategoryError(error));
         break;
       }
       case "packages": {
@@ -896,6 +901,7 @@ export class AdminCmsService {
         after = await this.prisma.packageCategory.update({
           where: { id },
           data: {
+            ...(data.slug !== undefined ? { slug: slug(data) } : {}),
             ...(data.name !== undefined
               ? { name: text(data, "name", 200) }
               : {}),
@@ -918,7 +924,7 @@ export class AdminCmsService {
               ? { isActive: boolean(data, "isActive") }
               : {}),
           },
-        });
+        }).catch((error: unknown) => this.rethrowPackageCategoryError(error));
         break;
       case "packages": {
         before = await this.prisma.package.findUnique({

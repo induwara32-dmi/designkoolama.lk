@@ -1,6 +1,38 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { PUBLIC_API_URL } from "./lib/api-config";
+import { PUBLIC_API_URL, SERVER_API_URL } from "./lib/api-config";
+import { RETIRED_PACKAGE_SLUGS, resolvePackageRoute } from "./lib/package-route";
+
+// Package URL redirects are decided here, before rendering: the root loading.tsx makes
+// every page stream, so a redirect thrown inside the page can only arrive as a 200 with
+// a client-side meta refresh instead of a real 308.
+let livePackageSlugsCache: { at: number; slugs: string[] } | null = null;
+async function livePackageSlugs(): Promise<string[] | null> {
+  if (livePackageSlugsCache && Date.now() - livePackageSlugsCache.at < 60_000) return livePackageSlugsCache.slugs;
+  if (!SERVER_API_URL) return null;
+  try {
+    const response = await fetch(`${SERVER_API_URL}/public/packages`, { signal: AbortSignal.timeout(5_000) });
+    if (!response.ok) return null;
+    const body = (await response.json()) as { data?: Array<{ slug?: unknown }> };
+    const slugs = (body.data ?? []).map((item) => (typeof item.slug === "string" ? item.slug : "")).filter(Boolean);
+    livePackageSlugsCache = { at: Date.now(), slugs };
+    return slugs;
+  } catch {
+    return null;
+  }
+}
+async function packageRedirect(request: NextRequest) {
+  const match = /^\/packages\/([^/]+)$/.exec(request.nextUrl.pathname);
+  if (!match) return null;
+  let requested: string;
+  try { requested = decodeURIComponent(match[1]!); } catch { return null; }
+  const lower = requested.toLowerCase();
+  if (requested === lower && !Object.hasOwn(RETIRED_PACKAGE_SLUGS, lower)) return null;
+  const slugs = await livePackageSlugs();
+  if (!slugs) return null;
+  const route = resolvePackageRoute(requested, slugs);
+  return route.kind === "redirect" ? NextResponse.redirect(new URL(route.to, request.url), 308) : null;
+}
 
 // The backend API lives on its own origin and is called via fetch() from client
 // components (forms, the admin panel) -- connect-src must allow it explicitly or those
@@ -12,7 +44,10 @@ const apiOrigin = (() => {
 })();
 const isProduction = process.env.NODE_ENV === "production";
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
+  const redirect = await packageRedirect(request);
+  if (redirect) return redirect;
+
   // A fresh nonce per request, threaded to Next.js via the x-nonce request header (its
   // documented pattern): Next automatically applies this nonce to its own
   // framework-injected inline scripts (hydration bootstrap, dev-mode fast refresh,

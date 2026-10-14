@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { PackageExperiencePage } from "@/components/packages/package-experience-page";
 import { packageExperiences, type PackageExperience } from "@/content/packages";
 import { ContentUnavailable } from "@/components/feedback/content-unavailable";
 import { loadPackages } from "@/services/public-content";
 import { JsonLd } from "@/components/seo/json-ld";
 import { breadcrumbJsonLd } from "@/lib/structured-data";
+import { resolvePackageRoute } from "@/lib/package-route";
 
 export const dynamic = "force-dynamic";
 type Props = { params: Promise<{ slug: string }> };
@@ -44,7 +45,9 @@ export default async function Page({ params }: Props) {
   let experiences;
   try { experiences = await loadPackages(packageExperiences); }
   catch { return <ContentUnavailable />; }
-  const item = experiences.find((entry) => entry.slug === slug);
+  const route = resolvePackageRoute(slug, experiences.map((entry) => entry.slug));
+  if (route.kind === "redirect") permanentRedirect(route.to);
+  const item = route.kind === "page" ? experiences.find((entry) => entry.slug === route.slug) : undefined;
   if (!item) notFound();
   return (
     <>
