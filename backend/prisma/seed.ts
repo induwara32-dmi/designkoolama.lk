@@ -53,7 +53,10 @@ async function seed() {
     });
   }
   const serviceIds = new Map<string, string>();
-  for (const [displayOrder, item] of services.entries()) {
+  // Services are admin-managed (renamed slugs, edited text): only seed an empty table so a re-run can't re-create or overwrite them.
+  const existingServices = await prisma.service.findMany({ select: { id: true, name: true } });
+  for (const existing of existingServices) serviceIds.set(existing.name, existing.id);
+  for (const [displayOrder, item] of existingServices.length === 0 ? services.entries() : []) {
     const row = await prisma.service.upsert({
       where: { slug: item.slug },
       update: {

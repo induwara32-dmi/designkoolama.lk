@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { ContentStatus, MediaKind, Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import type { LatestImagesQueryDto, PackageQueryDto, PortfolioQueryDto } from "./public-content.dto";
+import { publishedServiceField, visibleServiceWhere } from "./published-service";
 const stringValue = (value: unknown) =>
   typeof value === "string" || typeof value === "number" ? String(value) : "";
 const featureLabel = (value: unknown) =>
@@ -54,15 +55,9 @@ export class PublicContentService {
     if (!item) throw new NotFoundException("Page not found");
     return this.published(item);
   }
-  async services() {
-    const rows = await this.prisma.service.findMany({
-      where: {
-        deletedAt: null,
-        OR: [
-          { status: ContentStatus.PUBLISHED },
-          { publishedSnapshot: { not: Prisma.DbNull } },
-        ],
-      },
+  private visibleServices() {
+    return this.prisma.service.findMany({
+      where: visibleServiceWhere,
       orderBy: { displayOrder: "asc" },
       select: {
         slug: true,
@@ -82,40 +77,49 @@ export class PublicContentService {
         },
       },
     });
+  }
+  async services() {
+    const rows = await this.visibleServices();
     // updatedAt is read from the live row (not the frozen publishedSnapshot, which
     // never carries it) so the sitemap can show an accurate lastmod regardless of
     // whether this entity is currently serving its snapshot or its live content.
-    return rows.map((row) => ({ ...this.published(row), updatedAt: row.updatedAt }));
+    return rows.map((row) => ({ ...this.serviceView(row), updatedAt: row.updatedAt }));
   }
   async service(slug: string) {
-    const item = await this.prisma.service.findFirst({
-      where: {
-        slug,
-        deletedAt: null,
-        OR: [
-          { status: ContentStatus.PUBLISHED },
-          { publishedSnapshot: { not: Prisma.DbNull } },
-        ],
+    // Match the PUBLISHED slug (the snapshot's, else the row's), not the live row: a saved-but-
+    // unpublished slug change must not move or break the live URL before Publish. Picked in
+    // memory from the handful of visible services, so any snapshot shape resolves.
+    const row = (await this.visibleServices()).find((entry) => publishedServiceField(entry, "slug") === slug);
+    if (!row) throw new NotFoundException("Service not found");
+    // The detail response never carried updatedAt (only the list does, for the sitemap).
+    const { updatedAt, ...item } = row;
+    void updatedAt;
+    return this.serviceView(item);
+  }
+  // The published Name, Slug and Summary (the snapshot's, else the row's, so a snapshot missing
+  // one of those keys still has it) win over stale copies inside the Content JSON (whose
+  // "description" is the Summary copy), so editing the fields can never be undone by the JSON.
+  private serviceView<T extends { publishedSnapshot: unknown; slug?: unknown; name?: unknown; summary?: unknown }>(row: T) {
+    const slug = publishedServiceField(row, "slug");
+    const name = publishedServiceField(row, "name");
+    const summary = publishedServiceField(row, "summary");
+    const view: Record<string, unknown> = {
+      ...(this.published(row) as Record<string, unknown>),
+      ...(slug !== undefined ? { slug } : {}),
+      ...(name !== undefined ? { name } : {}),
+      ...(summary !== undefined ? { summary } : {}),
+    };
+    if (!view.content || typeof view.content !== "object" || Array.isArray(view.content)) return view;
+    const content = view.content as Record<string, unknown>;
+    return {
+      ...view,
+      content: {
+        ...content,
+        ...(slug ? { slug } : {}),
+        ...(name ? { name } : {}),
+        ...(summary ? { description: summary } : {}),
       },
-      select: {
-        slug: true,
-        name: true,
-        summary: true,
-        content: true,
-        displayOrder: true,
-        publishedSnapshot: true,
-        seo: {
-          select: {
-            title: true,
-            description: true,
-            canonicalUrl: true,
-            openGraph: true,
-          },
-        },
-      },
-    });
-    if (!item) throw new NotFoundException("Service not found");
-    return this.published(item);
+    };
   }
   async portfolio(query: PortfolioQueryDto) {
     const where: Prisma.PortfolioProjectWhereInput = {

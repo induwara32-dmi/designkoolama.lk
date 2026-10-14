@@ -6,7 +6,7 @@ import { ContentUnavailable } from "@/components/feedback/content-unavailable";
 import { loadPackages } from "@/services/public-content";
 import { JsonLd } from "@/components/seo/json-ld";
 import { breadcrumbJsonLd } from "@/lib/structured-data";
-import { resolvePackageRoute } from "@/lib/package-route";
+import { PACKAGE_ROUTES, resolveSlugRoute } from "@/lib/slug-routes";
 
 export const dynamic = "force-dynamic";
 type Props = { params: Promise<{ slug: string }> };
@@ -45,7 +45,7 @@ export default async function Page({ params }: Props) {
   let experiences;
   try { experiences = await loadPackages(packageExperiences); }
   catch { return <ContentUnavailable />; }
-  const route = resolvePackageRoute(slug, experiences.map((entry) => entry.slug));
+  const route = resolveSlugRoute(slug, experiences.map((entry) => entry.slug), PACKAGE_ROUTES);
   if (route.kind === "redirect") permanentRedirect(route.to);
   const item = route.kind === "page" ? experiences.find((entry) => entry.slug === route.slug) : undefined;
   if (!item) notFound();

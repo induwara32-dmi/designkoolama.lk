@@ -45,10 +45,34 @@ describe("PublicContentService", () => {
   });
   it("returns 404 for invalid service slugs", async () => {
     (
-      prisma as { service: { findFirst: jest.Mock } }
-    ).service.findFirst.mockResolvedValue(null);
+      prisma as { service: { findMany: jest.Mock } }
+    ).service.findMany.mockResolvedValue([]);
     await expect(service.service("missing")).rejects.toBeInstanceOf(
       NotFoundException,
+    );
+  });
+  it("resolves the published slug for every snapshot shape", async () => {
+    const content = { slug: "stale", name: "Stale", description: "Stale" };
+    (
+      prisma as { service: { findMany: jest.Mock } }
+    ).service.findMany.mockResolvedValue([
+      // (a) published, no snapshot (as seeded)
+      { slug: "seeded", name: "Seeded", summary: "Seeded summary", content, publishedSnapshot: null, updatedAt: new Date() },
+      // (b) draft whose snapshot carries slug and name: the snapshot wins, the draft slug is not live
+      { slug: "draft-slug", name: "Draft", summary: "Draft summary", content, publishedSnapshot: { slug: "live-slug", name: "Live", summary: "Live summary", content }, updatedAt: new Date() },
+      // (c) snapshot without slug and name keys: the row's values are used
+      { slug: "row-slug", name: "Row", summary: "Row summary", content, publishedSnapshot: { summary: "Snapshot summary", content }, updatedAt: new Date() },
+    ]);
+    await expect(service.service("seeded")).resolves.toMatchObject({ slug: "seeded", name: "Seeded", content: { slug: "seeded", name: "Seeded", description: "Seeded summary" } });
+    await expect(service.service("live-slug")).resolves.toMatchObject({ slug: "live-slug", name: "Live", content: { slug: "live-slug", name: "Live", description: "Live summary" } });
+    await expect(service.service("draft-slug")).rejects.toBeInstanceOf(NotFoundException);
+    await expect(service.service("row-slug")).resolves.toMatchObject({ slug: "row-slug", name: "Row", summary: "Snapshot summary", content: { slug: "row-slug", name: "Row", description: "Snapshot summary" } });
+    const listed = await service.services();
+    expect(listed.map((item) => (item as { slug?: unknown }).slug)).toEqual(["seeded", "live-slug", "row-slug"]);
+    expect(
+      (prisma as { service: { findMany: jest.Mock } }).service.findMany,
+    ).toHaveBeenLastCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null, status: { not: "ARCHIVED" } }) }),
     );
   });
   it("applies portfolio filtering and pagination", async () => {

@@ -67,6 +67,12 @@ const slug = (data: Record<string, unknown>) => {
     throw new BadRequestException("slug is invalid");
   return value;
 };
+const serviceSlug = (data: Record<string, unknown>) => {
+  const value = typeof data.slug === "string" ? data.slug.trim() : "";
+  if (value.length > 100 || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value))
+    throw new BadRequestException("Use lowercase letters, numbers and hyphens, for example book-cover-design.");
+  return value;
+};
 const object = (data: Record<string, unknown>, key: string) => {
   const value = data[key] ?? {};
   if (!value || typeof value !== "object" || Array.isArray(value))
@@ -283,6 +289,11 @@ export class AdminCmsService {
       },
       data: { isPopular: false },
     });
+  }
+  private rethrowServiceError(error: unknown): never {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002")
+      throw new ConflictException("Another service already uses this slug. Choose a different slug.");
+    throw error;
   }
   private rethrowPackageCategoryError(error: unknown): never {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002")
@@ -523,14 +534,14 @@ export class AdminCmsService {
         validateStructuredContent(content);
         created = await this.prisma.service.create({
           data: {
-            slug: slug(data),
+            slug: serviceSlug(data),
             name: text(data, "name", 200),
             summary: text(data, "summary"),
             content,
             status: ContentStatus.DRAFT,
             displayOrder: integer(data, "displayOrder"),
           },
-        });
+        }).catch((error: unknown) => this.rethrowServiceError(error));
         break;
       }
       case "portfolio-categories": {
@@ -765,6 +776,7 @@ export class AdminCmsService {
           data: {
             status: ContentStatus.DRAFT,
             publishedSnapshot: preservePublished(before),
+            ...(data.slug !== undefined ? { slug: serviceSlug(data) } : {}),
             ...(data.name !== undefined
               ? { name: text(data, "name", 200) }
               : {}),
@@ -779,7 +791,7 @@ export class AdminCmsService {
               : {}),
             ...seoUpdate(data.seo),
           },
-        });
+        }).catch((error: unknown) => this.rethrowServiceError(error));
         break;
       case "portfolio-categories": {
         before = await this.prisma.portfolioCategory.findUnique({

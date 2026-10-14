@@ -6,7 +6,8 @@ import { siteConfig } from "@/lib/site";
 import { JsonLd } from "@/components/seo/json-ld";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/structured-data";
 import "./globals.css";
-import {loadPageSection} from "@/services/public-content";
+import {loadPageSection,loadServices} from "@/services/public-content";
+import {services as staticServices} from "@/content/services";
 import {siteContent,type SiteContent} from "@/content/site-content";
 
 // Previously "Inter" was only a CSS font-family name with no actual font file behind
@@ -53,6 +54,6 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   // every script on the page. Calling headers() opts the whole app into per-request
   // rendering so the baked-in and header nonces always agree.
   await headers();
-  const content=await loadPageSection<SiteContent>("site-settings","site",siteContent);
-  return <html lang="en" className={inter.variable}><body><JsonLd data={[organizationJsonLd(content), websiteJsonLd]}/><SiteShell content={content}>{children}</SiteShell></body></html>;
+  const [content,services]=await Promise.all([loadPageSection<SiteContent>("site-settings","site",siteContent),loadServices(staticServices).catch(()=>[...staticServices])]);
+  return <html lang="en" className={inter.variable}><body><JsonLd data={[organizationJsonLd(content), websiteJsonLd]}/><SiteShell content={content} services={services}>{children}</SiteShell></body></html>;
 }

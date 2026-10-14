@@ -14,7 +14,7 @@ import {
   ImageIcon,
   X,
 } from "lucide-react";
-import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   adminApi,
@@ -48,6 +48,7 @@ type Field = {
     | "portfolio-category"
     | "service";
   required?: boolean;
+  hint?: string;
 };
 type Config = {
   resource: string;
@@ -83,7 +84,9 @@ export const cmsConfigs: Record<string, Config> = {
     title: "Services",
     description: "Manage public service offerings.",
     fields: [
-      ...common,
+      common[0]!,
+      { ...common[1]!, hint: "Lowercase letters, numbers and hyphens only, for example book-cover-design. Changing it changes the page address after you publish." },
+      common[2]!,
       { key: "summary", label: "Summary", kind: "textarea", required: true },
       { key: "content", label: "Content (JSON)", kind: "json" },
       { key: "seo", label: "SEO metadata", kind: "json" },
@@ -911,8 +914,8 @@ function GenericCmsManager({ module }: { module: string }) {
                       ? "div"
                       : "label";
                   return (
+                    <Fragment key={`${selected.id}-${field.key}`}>
                     <FieldContainer
-                      key={`${selected.id}-${field.key}`}
                       className={field.kind === "boolean" ? "admin-check" : ""}
                     >
                       {field.kind === "boolean" ? (
@@ -1345,6 +1348,7 @@ function GenericCmsManager({ module }: { module: string }) {
                           ) : (
                             <input
                               name={field.key}
+                              aria-describedby={field.hint ? `field-hint-${field.key}` : undefined}
                               type={field.kind === "number" ? "number" : "text"}
                               defaultValue={String(
                                 valueFor(selected, field.key, field.kind),
@@ -1377,6 +1381,8 @@ function GenericCmsManager({ module }: { module: string }) {
                         </>
                       )}
                     </FieldContainer>
+                    {field.hint && <p className="admin-hint" id={`field-hint-${field.key}`}>{field.hint}</p>}
+                    </Fragment>
                   );
                 })}
                 <button className="admin-primary" type="submit">

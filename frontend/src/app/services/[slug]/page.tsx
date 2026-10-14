@@ -1,8 +1,9 @@
 import type {Metadata} from "next";
-import {notFound} from "next/navigation";
+import {notFound,permanentRedirect} from "next/navigation";
 import {ServicePage} from "@/components/services/service-page";
-import {serviceBySlug,type ServiceContent} from "@/content/services";
-import {loadService,loadServiceShowcaseImages} from "@/services/public-content";
+import {serviceBySlug,services as staticServices,type ServiceContent} from "@/content/services";
+import {SERVICE_ROUTES,resolveSlugRoute} from "@/lib/slug-routes";
+import {loadService,loadServiceShowcaseImages,loadServices} from "@/services/public-content";
 import {ContentUnavailable} from "@/components/feedback/content-unavailable";
 import {JsonLd} from "@/components/seo/json-ld";
 import {breadcrumbJsonLd,serviceJsonLd} from "@/lib/structured-data";
@@ -39,9 +40,14 @@ export default async function Page({params}:Props){
   // Fetched in parallel: the showcase query is independent of service resolution, and a
   // Service with no matching Portfolio Category (or a fetch failure) just resolves to an
   // empty array, so it never blocks or fails the page.
-  const [resolved,showcase]=await Promise.all([resolveService(slug),loadServiceShowcaseImages(slug)]);
-  if("notFound" in resolved)notFound();
+  const [resolved,showcase,liveServices]=await Promise.all([resolveService(slug),loadServiceShowcaseImages(slug),loadServices(staticServices).catch(()=>[...staticServices])]);
+  if("notFound" in resolved){
+    // Page-level fallback for the middleware redirect (renamed or uppercase slugs).
+    const route=resolveSlugRoute(slug,liveServices.map(item=>item.slug),SERVICE_ROUTES);
+    if(route.kind==="redirect")permanentRedirect(route.to);
+    notFound();
+  }
   if("unavailable" in resolved)return <ContentUnavailable/>;
   const service=resolved.service;
-  return <><JsonLd data={[serviceJsonLd(service),breadcrumbJsonLd([{name:"Home",path:"/"},{name:"Services",path:"/#services"},{name:service.name,path:`/services/${service.slug}`}])]}/><ServicePage service={service} showcase={showcase}/></>;
+  return <><JsonLd data={[serviceJsonLd(service),breadcrumbJsonLd([{name:"Home",path:"/"},{name:"Services",path:"/#services"},{name:service.name,path:`/services/${service.slug}`}])]}/><ServicePage service={service} showcase={showcase} services={liveServices}/></>;
 }

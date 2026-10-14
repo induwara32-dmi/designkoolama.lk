@@ -14,6 +14,18 @@ import { quoteSubmissionService } from "@/services/quote";
 import { buildWhatsAppLink, joinWhatsAppMessage } from "@/lib/whatsapp";
 import { services as staticServices, type ServiceContent } from "@/content/services";
 import { loadServices } from "@/services/public-content";
+import { SERVICE_ROUTES, liveSlugFor } from "@/lib/slug-routes";
+
+// A ?service= value from a link or bookmark, matched to a live option by name or slug (any
+// case) or through a renamed service slug; otherwise left as it was.
+function matchServiceOption(requested: string, options: readonly ServiceContent[]) {
+  const wanted = requested.trim().toLowerCase();
+  if (!wanted) return requested;
+  const direct = options.find((item) => item.name.toLowerCase() === wanted || item.slug === wanted);
+  if (direct) return direct.name;
+  const renamed = liveSlugFor(wanted.replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""), options.map((item) => item.slug), SERVICE_ROUTES);
+  return options.find((item) => item.slug === renamed)?.name ?? requested;
+}
 
 const schema = z.object({
   fullName: z.string().trim().min(2, "Enter your full name"),
@@ -93,6 +105,7 @@ export function QuoteForm({
     formState: { errors, isSubmitting },
     reset,
     setValue,
+    getValues,
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -105,7 +118,11 @@ export function QuoteForm({
     },
   });
   useEffect(() => {
-    setValue("service", initialService);
+    const current = getValues("service");
+    if (!current || current === initialService || current === matchServiceOption(initialService, staticServices)) setValue("service", matchServiceOption(initialService, serviceOptions));
+  }, [initialService, serviceOptions, getValues, setValue]);
+  useEffect(() => {
+    setValue("service", matchServiceOption(initialService, staticServices));
     setValue("selectedPackage", initialPackage);
     if (initialPackage) setValue("projectDetails", `I am interested in the ${initialPackage} package. `);
   }, [initialPackage, initialService, setValue]);

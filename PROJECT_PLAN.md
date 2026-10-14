@@ -2,7 +2,7 @@
 
 ## Reference inventory
 
-The supplied overview contains fourteen public compositions: Home, About, Contact, Portfolio, Brand Identity, Print Advertising, Social Media Design, Packaging Design, Merchandise Design, 3D Design, Main Packages, Tutor Packages, Branding Packages, and Photography Packages. Shared elements include a compact dark navbar, centered hero treatments, orange-gradient CTAs, charcoal cards, portfolio/showcase grids, CTA bands, and a multi-column footer.
+The supplied overview contains fourteen public compositions: Home, About, Contact, Portfolio, Brand Identity, Print Advertising, Social Media Design, Book Cover Design, Merchandise Design, 3D Design, Main Packages, Tutor Packages, Branding Packages, and Photography Packages. Shared elements include a compact dark navbar, centered hero treatments, orange-gradient CTAs, charcoal cards, portfolio/showcase grids, CTA bands, and a multi-column footer.
 
 Only an overview-scale export is currently available. Exact copy and imagery that cannot be read will be modeled as CMS-owned seed content and can be replaced without code changes. Full-resolution exports should be placed in `design-reference/` when available.
 

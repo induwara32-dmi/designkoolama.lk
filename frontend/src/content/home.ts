@@ -11,7 +11,7 @@ export const homeContent = {
     { title: "Branding & Identity", description: "Crafting memorable brand identities that resonate with your target audience and establish a strong market presence.", href: "/services/brand-identity", icon: Flame },
     { title: "Print Advertising", description: "Visually stunning graphics for print and digital media that communicate your message effectively and beautifully.", href: "/services/print-advertising", icon: PenTool },
     { title: "Social Media Design", description: "Engaging social media assets and templates designed to boost your online engagement and follower growth.", href: "/services/social-media-design", icon: Share2 },
-    { title: "Packaging Design", description: "Responsive, user-centric designs built to drive conversions and showcase your brand.", href: "/services/packaging-design", icon: MonitorCog },
+    { title: "Book Cover Design", description: "Book cover design that gives your title a strong, memorable first impression.", href: "/services/book-cover-design", icon: MonitorCog },
     { title: "Merchandise Design", description: "Innovative merchandise solutions that stand out and create memorable brand experiences.", href: "/services/merchandise-design", icon: Box },
     { title: "3D Design", description: "Immersive visuals and seamless experiences designed to delight audiences and achieve business goals.", href: "/services/3d-design", icon: Layers3 },
   ],

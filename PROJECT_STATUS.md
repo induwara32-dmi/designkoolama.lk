@@ -136,7 +136,7 @@ Phase 4 — Public Services and Packages (complete)
 
 ## Completed routes
 
-- Services: `/services/brand-identity`, `/services/print-advertising`, `/services/social-media-design`, `/services/packaging-design`, `/services/merchandise-design`, and `/services/3d-design`.
+- Services: `/services/brand-identity`, `/services/print-advertising`, `/services/social-media-design`, `/services/book-cover-design` (the retired `/services/packaging-design` permanently redirects there once the renamed service is published), `/services/merchandise-design`, and `/services/3d-design`.
 - Packages: `/packages` and `/packages/<category-slug>`, resolved from the live package categories (currently `videography`, `branding` and `photography`). The retired `/packages/tutor` permanently redirects (308) to `/packages` once no category uses that slug.
 - Preserved all completed Phase 1–3 public routes and behavior.
 
