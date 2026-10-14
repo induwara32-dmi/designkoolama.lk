@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import { ApprovedIcon } from "@/components/ui/approved-icon";
 import { LinkButton } from "@/components/ui/button";
-import type { PortfolioCategoryCard } from "@/content/portfolio";
+import { categoryCardTitle, type PortfolioCategoryCard } from "@/content/portfolio";
 
 const tones = ["rings", "squares", "hex", "orbit", "window", "triangle"];
 export function PortfolioBrowser({
@@ -45,7 +45,7 @@ export function PortfolioBrowser({
             <div
               className={`case-art case-art-${tones[index % tones.length]}`}
               role="img"
-              aria-label={`${category.name} category artwork`}
+              aria-label={`${categoryCardTitle(category)} category artwork`}
             >
               {category.iconKey ? (
                 <ApprovedIcon iconKey={category.iconKey} />
@@ -60,7 +60,7 @@ export function PortfolioBrowser({
           )}
           <div>
             <span>{category.name}</span>
-            <h2>{category.cardTitle || category.name}</h2>
+            <h2>{categoryCardTitle(category)}</h2>
             <p>{category.description}</p>
             {category.slug ? (
               <LinkButton

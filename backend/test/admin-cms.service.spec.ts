@@ -340,6 +340,18 @@ describe("AdminCmsService", () => {
     await service.create("portfolio-categories",{slug:"branding",name:"Branding",cardTitle:"Branding",description:"Card",shortDescription:"Short",overview:"Overview",bannerMediaId:"banner",bannerAltText:"Banner alt",bannerCaption:"Banner caption",galleryImages:[{mediaId:"second",altText:"Second",caption:"Two"},{mediaId:"first",altText:"First",caption:"One"}],displayOrder:0,isActive:true},admin);
     expect(categoryCreate).toHaveBeenCalledWith(expect.objectContaining({data:expect.objectContaining({status:"DRAFT",bannerMediaId:"banner",galleryImages:{create:[{mediaId:"second",altText:"Second",caption:"Two",displayOrder:0},{mediaId:"first",altText:"First",caption:"One",displayOrder:1}]}})}));
   });
+  it("stores an empty or blank category card title as null and keeps it when the key is omitted",async()=>{
+    categoryFindUnique.mockResolvedValue({id:"category",status:"PUBLISHED",publishedSnapshot:{cardTitle:"Old"},cardMediaId:null,bannerMediaId:null,galleryImages:[]});categoryUpdate.mockResolvedValue({id:"category"});activityCreate.mockResolvedValue({});
+    const sent=()=>(categoryUpdate.mock.calls.at(-1) as [{data:Record<string,unknown>}])[0].data;
+    await service.update("portfolio-categories","category",{cardTitle:"  Book Cover Design  "},admin);expect(sent().cardTitle).toBe("Book Cover Design");
+    await service.update("portfolio-categories","category",{cardTitle:""},admin);expect(sent().cardTitle).toBeNull();
+    await service.update("portfolio-categories","category",{cardTitle:"   "},admin);expect(sent().cardTitle).toBeNull();
+    await service.update("portfolio-categories","category",{name:"Book Cover Design"},admin);expect(sent()).not.toHaveProperty("cardTitle");
+    await expect(service.update("portfolio-categories","category",{cardTitle:"x".repeat(301)},admin)).rejects.toBeInstanceOf(BadRequestException);
+    categoryCreate.mockResolvedValue({id:"category-new"});
+    await service.create("portfolio-categories",{slug:"covers",name:"Covers",cardTitle:" ",description:"Card",shortDescription:"Short",overview:"Overview",displayOrder:0,isActive:true},admin);
+    expect(categoryCreate).toHaveBeenLastCalledWith(expect.objectContaining({data:expect.objectContaining({cardTitle:null})}));
+  });
   it("replaces category gallery relations in a draft without changing the published snapshot",async()=>{
     categoryFindUnique.mockResolvedValue({id:"category",status:"PUBLISHED",publishedSnapshot:{galleryImages:[{mediaId:"published"}]},cardMediaId:null,bannerMediaId:"banner",galleryImages:[]});categoryUpdate.mockResolvedValue({id:"category"});activityCreate.mockResolvedValue({});
     await service.update("portfolio-categories","category",{galleryImages:[{mediaId:"replacement",altText:"Replacement",caption:"Updated"}]},admin);

@@ -29,6 +29,9 @@ export type PortfolioCategoryCard = {
   bannerAltText?: string | null;
   bannerCaption?: string | null;
 };
+// The heading on a category card: the admin "Card title" when set, otherwise the category name.
+export const categoryCardTitle = (category: Pick<PortfolioCategoryCard, "name" | "cardTitle">) =>
+  category.cardTitle?.trim() || category.name;
 export type PortfolioProject = {
   slug: string;
   title: string;

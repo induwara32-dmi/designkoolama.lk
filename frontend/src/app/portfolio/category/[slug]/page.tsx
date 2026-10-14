@@ -5,6 +5,7 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { ContentUnavailable } from "@/components/feedback/content-unavailable";
 import { breadcrumbJsonLd } from "@/lib/structured-data";
 import { loadPortfolioCategory } from "@/services/public-content";
+import { categoryCardTitle } from "@/content/portfolio";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -15,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   try {
     const { category } = await loadPortfolioCategory(slug);
-    const title = `${category.cardTitle || category.name} Portfolio`;
+    const title = `${categoryCardTitle(category)} Portfolio`;
     const description =
       category.description ||
       `Explore ${category.name} projects by DesignKoolama.`;

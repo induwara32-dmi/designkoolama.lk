@@ -73,6 +73,10 @@ const serviceSlug = (data: Record<string, unknown>) => {
     throw new BadRequestException("Use lowercase letters, numbers and hyphens, for example book-cover-design.");
   return value;
 };
+// Optional category card heading: empty or whitespace is stored as null so the public card falls
+// back to the category name.
+const cardTitle = (data: Record<string, unknown>) =>
+  optionalText(data, "cardTitle", 300) || null;
 const object = (data: Record<string, unknown>, key: string) => {
   const value = data[key] ?? {};
   if (!value || typeof value !== "object" || Array.isArray(value))
@@ -553,7 +557,7 @@ export class AdminCmsService {
           data: {
             slug: slug(data),
             name: text(data, "name", 200),
-            cardTitle: optionalText(data, "cardTitle", 300),
+            cardTitle: cardTitle(data),
             description: optionalText(data, "description", 1000),
             shortDescription: optionalText(data, "shortDescription", 1000),
             overview: optionalText(data, "overview", 5000),
@@ -819,7 +823,7 @@ export class AdminCmsService {
               ? { name: text(data, "name", 200) }
               : {}),
             ...(data.cardTitle !== undefined
-              ? { cardTitle: optionalText(data, "cardTitle", 300) }
+              ? { cardTitle: cardTitle(data) }
               : {}),
             ...(data.description !== undefined
               ? { description: optionalText(data, "description", 1000) }

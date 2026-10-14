@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ApprovedIcon } from "@/components/ui/approved-icon";
 import { AUTO_SLIDE_INTERVAL_MS } from "@/lib/carousel";
-import type { PortfolioCategoryCard } from "@/content/portfolio";
+import { categoryCardTitle, type PortfolioCategoryCard } from "@/content/portfolio";
 
 const tones = ["rings", "squares", "hex", "orbit", "window", "triangle"];
 
@@ -32,8 +32,8 @@ export function FeaturedWorkCarousel({ categories }: { categories: PortfolioCate
     <AnimatePresence mode="wait" initial={false}>
       <motion.div key={`${visible}-${page}`} className="featured-work-group" initial={reduced ? false : { opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={reduced ? undefined : { opacity: 0, x: -24 }} transition={{ duration: reduced ? 0 : 0.45, ease: "easeOut" }}>
         {groups[page]!.map((category, index) => <article className="project-card featured-work-card" key={category.slug}>
-          {category.cardMedia ? <div className="project-art featured-work-art"><Image src={category.cardMedia.secureUrl || category.cardMedia.url} alt={category.cardMedia.altText || category.name} fill sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw" style={{ objectFit: "cover" }} /></div> : <div className={`project-art project-art-${tones[(page * visible + index) % tones.length]}`} role="img" aria-label={`${category.name} category artwork`}>{category.iconKey && <ApprovedIcon iconKey={category.iconKey} />}</div>}
-          <div className="project-info"><span>{category.name}</span><div><h3>{category.cardTitle || category.name}</h3><Link href={`/portfolio/category/${category.slug}`} aria-label={`View ${category.name} portfolio`}><ArrowRight /></Link></div><p>{category.shortDescription || category.description}</p></div>
+          {category.cardMedia ? <div className="project-art featured-work-art"><Image src={category.cardMedia.secureUrl || category.cardMedia.url} alt={category.cardMedia.altText || categoryCardTitle(category)} fill sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw" style={{ objectFit: "cover" }} /></div> : <div className={`project-art project-art-${tones[(page * visible + index) % tones.length]}`} role="img" aria-label={`${categoryCardTitle(category)} category artwork`}>{category.iconKey && <ApprovedIcon iconKey={category.iconKey} />}</div>}
+          <div className="project-info"><span>{category.name}</span><div><h3>{categoryCardTitle(category)}</h3><Link href={`/portfolio/category/${category.slug}`} aria-label={`View ${categoryCardTitle(category)} portfolio`}><ArrowRight /></Link></div><p>{category.shortDescription || category.description}</p></div>
         </article>)}
       </motion.div>
     </AnimatePresence>
