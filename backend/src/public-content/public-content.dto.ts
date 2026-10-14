@@ -6,4 +6,7 @@ export class PortfolioQueryDto{
  @ApiPropertyOptional({default:1}) @Type(()=>Number) @IsInt() @Min(1) page=1;
  @ApiPropertyOptional({default:12,maximum:50}) @Type(()=>Number) @IsInt() @Min(1) @Max(50) limit=12;
 }
+export class LatestImagesQueryDto{
+ @ApiPropertyOptional({default:3,maximum:12}) @Type(()=>Number) @IsInt() @Min(1) @Max(12) limit=3;
+}
 export class PackageQueryDto{@ApiPropertyOptional() @IsOptional() @IsString() category?:string}

@@ -105,39 +105,27 @@ export async function loadService(slug: string, fallback?: ServiceContent) {
     throw error;
   }
 }
-export type ServiceShowcaseItem = {
-  slug: string;
-  title: string;
-  image: { url: string; secureUrl?: string; altText: string } | null;
-};
-export async function loadServiceShowcase(categorySlug: string): Promise<ServiceShowcaseItem[]> {
+export type ServiceShowcaseImage = { id: string; url: string; secureUrl?: string; altText: string | null; caption: string | null };
+// Services match a portfolio category by slug; these are the exceptions.
+const SERVICE_CATEGORY_SLUGS: Readonly<Record<string, string>> = { "brand-identity": "branding-and-identity" };
+export async function loadServiceShowcaseImages(serviceSlug: string): Promise<ServiceShowcaseImage[]> {
+  const categorySlug = SERVICE_CATEGORY_SLUGS[serviceSlug] ?? serviceSlug;
   try {
     const result = await get<{ items: Array<Record<string, unknown>> }>(
-      `/public/portfolio-categories/${encodeURIComponent(categorySlug)}/showcase`,
+      `/public/portfolio-categories/${encodeURIComponent(categorySlug)}/latest-images?limit=3`,
     );
     return result.items
-      .map((row) => {
-        const mediaEntry = Array.isArray(row.media)
-          ? (row.media[0] as { media?: Record<string, unknown> } | undefined)
-          : undefined;
-        const media = mediaEntry?.media;
-        const title = String(row.title ?? row.clientName ?? "");
-        return {
-          slug: String(row.slug ?? ""),
-          title,
-          image: media
-            ? {
-                url: String(media.url ?? ""),
-                secureUrl: media.secureUrl ? String(media.secureUrl) : undefined,
-                altText: String(media.altText ?? title),
-              }
-            : null,
-        };
-      })
-      .filter((item) => item.slug);
+      .map((row) => ({
+        id: String(row.id ?? ""),
+        url: String(row.url ?? ""),
+        secureUrl: row.secureUrl ? String(row.secureUrl) : undefined,
+        altText: typeof row.altText === "string" && row.altText.trim() ? row.altText : null,
+        caption: typeof row.caption === "string" && row.caption.trim() ? row.caption : null,
+      }))
+      .filter((item) => item.id && (item.secureUrl || item.url));
   } catch {
-    // A Service with no matching Portfolio Category (or a temporarily unreachable API)
-    // should just hide the Visual Showcase section, not break the page.
+    // No matching category, an older API without this endpoint, or an unreachable API:
+    // the Visual Showcase section is simply hidden, never a broken page.
     return [];
   }
 }

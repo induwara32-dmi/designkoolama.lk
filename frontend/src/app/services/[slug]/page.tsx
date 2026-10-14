@@ -2,7 +2,7 @@ import type {Metadata} from "next";
 import {notFound} from "next/navigation";
 import {ServicePage} from "@/components/services/service-page";
 import {serviceBySlug,type ServiceContent} from "@/content/services";
-import {loadService,loadServiceShowcase} from "@/services/public-content";
+import {loadService,loadServiceShowcaseImages} from "@/services/public-content";
 import {ContentUnavailable} from "@/components/feedback/content-unavailable";
 import {JsonLd} from "@/components/seo/json-ld";
 import {breadcrumbJsonLd,serviceJsonLd} from "@/lib/structured-data";
@@ -39,7 +39,7 @@ export default async function Page({params}:Props){
   // Fetched in parallel: the showcase query is independent of service resolution, and a
   // Service with no matching Portfolio Category (or a fetch failure) just resolves to an
   // empty array, so it never blocks or fails the page.
-  const [resolved,showcase]=await Promise.all([resolveService(slug),loadServiceShowcase(slug)]);
+  const [resolved,showcase]=await Promise.all([resolveService(slug),loadServiceShowcaseImages(slug)]);
   if("notFound" in resolved)notFound();
   if("unavailable" in resolved)return <ContentUnavailable/>;
   const service=resolved.service;

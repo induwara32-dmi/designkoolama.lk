@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { ContentStatus, Prisma } from "@prisma/client";
+import { ContentStatus, MediaKind, Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
-import type { PackageQueryDto, PortfolioQueryDto } from "./public-content.dto";
+import type { LatestImagesQueryDto, PackageQueryDto, PortfolioQueryDto } from "./public-content.dto";
 const stringValue = (value: unknown) =>
   typeof value === "string" || typeof value === "number" ? String(value) : "";
 const featureLabel = (value: unknown) =>
@@ -209,6 +209,33 @@ export class PublicContentService {
       items,
       pagination: { page: query.page, limit: query.limit, total, pages: Math.ceil(total / query.limit) },
     };
+  }
+  // Newest-uploaded images from a category's PUBLISHED gallery (the same snapshot the category
+  // page shows). Gallery rows are re-created on every category save, so their own createdAt is
+  // not the date an image was added; the media asset's upload time is the stable signal.
+  async categoryLatestImages(slug: string, query: LatestImagesQueryDto) {
+    const category = await this.prisma.portfolioCategory.findFirst({
+      where: { slug, isActive: true, status: ContentStatus.PUBLISHED, publishedSnapshot: { not: Prisma.DbNull } },
+      select: { publishedSnapshot: true },
+    });
+    if (!category) return { items: [] };
+    const snapshot = category.publishedSnapshot as { galleryImages?: Array<{ altText?: string | null; caption?: string | null; media?: { id?: unknown; url?: unknown; secureUrl?: unknown; altText?: unknown; caption?: unknown } }> };
+    const gallery = (snapshot.galleryImages ?? []).filter((item) => typeof item.media?.id === "string");
+    const assets = await this.prisma.mediaAsset.findMany({
+      where: { id: { in: [...new Set(gallery.map((item) => item.media!.id as string))] }, deletedAt: null, kind: MediaKind.IMAGE },
+      select: { id: true, createdAt: true },
+    });
+    const uploadedAt = new Map(assets.map((asset) => [asset.id, asset.createdAt]));
+    const items = gallery
+      .filter((item) => uploadedAt.has(item.media!.id as string))
+      .map((item) => {
+        const media = item.media!;
+        const id = media.id as string;
+        return { id, url: stringValue(media.url), secureUrl: stringValue(media.secureUrl), altText: item.altText || stringValue(media.altText) || null, caption: item.caption || stringValue(media.caption) || null, uploadedAt: uploadedAt.get(id)! };
+      })
+      .sort((a, b) => b.uploadedAt.getTime() - a.uploadedAt.getTime() || a.id.localeCompare(b.id))
+      .slice(0, query.limit);
+    return { items };
   }
   // Service pages match a Portfolio Category 1:1 by slug and auto-populate their "Visual
   // Showcase" from it instead of a separately admin-managed gallery. A single query (the
