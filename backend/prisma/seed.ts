@@ -96,9 +96,14 @@ async function seed() {
   const categories = [
     ...new Set(portfolioProjects.map((item) => item.category)),
   ];
-  const categoryDescriptions:Record<string,string>={"Branding & Identity":"Distinctive brand systems built to inspire recognition, trust, and growth.","Print Advertising":"Campaign-led print design that communicates clearly and makes a lasting impression.","Social Media Design":"Engaging social content systems designed for consistency, reach, and connection.","Packaging Design":"Memorable packaging experiences that stand out and strengthen product perception.","Merchandise Design":"Purposeful branded merchandise designed to be used, valued, and remembered.","3D Design":"Dimensional visual experiences that bring products, spaces, and ideas to life."};
-  const categoryIcons:Record<string,string>={"Branding & Identity":"flame","Print Advertising":"pen-tool","Social Media Design":"share","Packaging Design":"box","Merchandise Design":"layers","3D Design":"globe"};
-  for (const [displayOrder, name] of categories.entries()) {
+  const categoryDescriptions:Record<string,string>={"Branding & Identity":"Distinctive brand systems built to inspire recognition, trust, and growth.","Print Advertising":"Campaign-led print design that communicates clearly and makes a lasting impression.","Social Media Design":"Engaging social content systems designed for consistency, reach, and connection.","Book Cover Design":"Book cover design that gives your title a strong, memorable first impression.","Merchandise Design":"Purposeful branded merchandise designed to be used, valued, and remembered.","3D Design":"Dimensional visual experiences that bring products, spaces, and ideas to life."};
+  const categoryIcons:Record<string,string>={"Branding & Identity":"flame","Print Advertising":"pen-tool","Social Media Design":"share","Book Cover Design":"box","Merchandise Design":"layers","3D Design":"globe"};
+  // Portfolio categories are admin-managed (renamed slugs, edited text and card titles), and the demo
+  // projects below reference them (and services) by the seed's original names: only seed an empty
+  // category table, so a re-run can't re-create a renamed category under its old slug, overwrite
+  // admin edits, or unlink and re-publish projects.
+  const seedPortfolio = (await prisma.portfolioCategory.count()) === 0;
+  for (const [displayOrder, name] of seedPortfolio ? categories.entries() : []) {
     const categorySlug=slugify(name),description=categoryDescriptions[name],iconKey=categoryIcons[name],publishedSnapshot={slug:categorySlug,name,cardTitle:name,description,shortDescription:description,overview:description,iconKey,displayOrder,cardMedia:null,bannerMedia:null};
     const row = await prisma.portfolioCategory.upsert({
       where: { slug: categorySlug },
@@ -107,7 +112,7 @@ async function seed() {
     });
     categoryIds.set(name, row.id);
   }
-  for (const [displayOrder, item] of portfolioProjects.entries()) {
+  for (const [displayOrder, item] of seedPortfolio ? portfolioProjects.entries() : []) {
     const project = await prisma.portfolioProject.upsert({
       where: { slug: item.slug },
       update: {

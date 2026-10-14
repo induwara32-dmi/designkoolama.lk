@@ -1,9 +1,11 @@
 import { expect, test } from "@playwright/test";
-import { PACKAGE_ROUTES, SERVICE_ROUTES, liveSlugFor, resolveSlugRoute } from "../src/lib/slug-routes";
+import { CATEGORY_ROUTES, PACKAGE_ROUTES, SERVICE_ROUTES, liveSlugFor, resolveSlugRoute } from "../src/lib/slug-routes";
 
 const packagesAfter = ["videography", "branding", "photography"];
 const packagesBefore = ["photography", "branding", "tutor"];
 const servicesBefore = ["brand-identity", "print-advertising", "social-media-design", "packaging-design", "merchandise-design", "3d-design"];
+const categoriesBefore = ["branding-and-identity", "print-advertising", "social-media-design", "packaging-design", "merchandise-design", "3d-design"];
+const categoriesAfter = ["branding-and-identity", "print-advertising", "social-media-design", "book-cover-design", "merchandise-design", "3d-design"];
 const servicesAfter = ["brand-identity", "print-advertising", "social-media-design", "book-cover-design", "merchandise-design", "3d-design"];
 
 test.describe("package route resolver", () => {
@@ -57,8 +59,28 @@ test.describe("service route resolver", () => {
   });
 });
 
+test.describe("portfolio category route resolver", () => {
+  test("before the rename is published, the old category page renders and nothing redirects", () => {
+    expect(resolveSlugRoute("packaging-design", categoriesBefore, CATEGORY_ROUTES)).toEqual({ kind: "page", slug: "packaging-design" });
+    expect(resolveSlugRoute("book-cover-design", categoriesBefore, CATEGORY_ROUTES)).toEqual({ kind: "notFound" });
+  });
+
+  test("after the rename is published, the old slug redirects to the new one, any case or trailing slash", () => {
+    for (const slug of ["packaging-design", "PACKAGING-DESIGN", "Packaging-Design/"])
+      expect(resolveSlugRoute(slug, categoriesAfter, CATEGORY_ROUTES)).toEqual({ kind: "redirect", to: "/portfolio/category/book-cover-design" });
+    expect(resolveSlugRoute("book-cover-design", categoriesAfter, CATEGORY_ROUTES)).toEqual({ kind: "page", slug: "book-cover-design" });
+    expect(resolveSlugRoute("BOOK-COVER-DESIGN", categoriesAfter, CATEGORY_ROUTES)).toEqual({ kind: "redirect", to: "/portfolio/category/book-cover-design" });
+  });
+
+  test("the old category slug never redirects to a missing page", () => {
+    const neither = categoriesAfter.filter((slug) => slug !== "book-cover-design");
+    expect(resolveSlugRoute("packaging-design", neither, CATEGORY_ROUTES)).toEqual({ kind: "notFound" });
+    expect(resolveSlugRoute("packaging-design", [], CATEGORY_ROUTES)).toEqual({ kind: "notFound" });
+  });
+});
+
 test("redirects cannot loop or chain", () => {
-  for (const [routes, live] of [[PACKAGE_ROUTES, packagesAfter], [SERVICE_ROUTES, servicesAfter]] as const) {
+  for (const [routes, live] of [[PACKAGE_ROUTES, packagesAfter], [SERVICE_ROUTES, servicesAfter], [CATEGORY_ROUTES, categoriesAfter]] as const) {
     for (const [from, target] of Object.entries(routes.retired)) {
       expect(target).not.toBe(`${routes.basePath}/${from}`);
       const first = resolveSlugRoute(from, live, routes);
@@ -111,5 +133,19 @@ test.describe("service URLs over HTTP", () => {
     const upper = await request.get("/services/PRINT-ADVERTISING", { maxRedirects: 0 });
     expect(upper.status()).toBe(308);
     expect(upper.headers().location).toMatch(/\/services\/print-advertising$/);
+  });
+});
+
+test.describe("portfolio category URLs over HTTP", () => {
+  test("the not-yet-renamed category still renders at its old URL without redirecting", async ({ request }) => {
+    // Local test data still has "packaging-design"; the redirect only applies after the rename is published.
+    const response = await request.get("/portfolio/category/packaging-design", { maxRedirects: 0 });
+    expect(response.status()).toBe(200);
+  });
+
+  test("uppercase category URLs redirect permanently to the canonical page", async ({ request }) => {
+    const upper = await request.get("/portfolio/category/PRINT-ADVERTISING", { maxRedirects: 0 });
+    expect(upper.status()).toBe(308);
+    expect(upper.headers().location).toMatch(/\/portfolio\/category\/print-advertising$/);
   });
 });

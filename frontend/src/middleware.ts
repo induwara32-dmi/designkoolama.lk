@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { PUBLIC_API_URL, SERVER_API_URL } from "./lib/api-config";
-import { PACKAGE_ROUTES, SERVICE_ROUTES, resolveSlugRoute, type SlugRoutes } from "./lib/slug-routes";
+import { CATEGORY_ROUTES, PACKAGE_ROUTES, SERVICE_ROUTES, resolveSlugRoute, type SlugRoutes } from "./lib/slug-routes";
 
-// Slug redirects (/packages/<x>, /services/<x>) are decided here, before rendering: the root
+// Slug redirects (/packages/<x>, /services/<x>, /portfolio/category/<x>) are decided here, before rendering: the root
 // loading.tsx makes every page stream, so a redirect thrown inside the page can only arrive
 // as a 200 with a client-side meta refresh instead of a real 308.
 const slugRedirectSources: ReadonlyArray<{ routes: SlugRoutes; apiPath: string }> = [
   { routes: PACKAGE_ROUTES, apiPath: "/public/packages" },
   { routes: SERVICE_ROUTES, apiPath: "/public/services" },
+  { routes: CATEGORY_ROUTES, apiPath: "/public/portfolio-categories" },
 ];
 const liveSlugsCache = new Map<string, { at: number; slugs: string[] }>();
 async function liveSlugs(apiPath: string): Promise<string[] | null> {

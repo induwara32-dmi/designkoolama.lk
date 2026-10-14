@@ -1,4 +1,5 @@
-// Slug-based public routes (/packages/<slug>, /services/<slug>) and their retired slugs.
+// Slug-based public routes (/packages/<slug>, /services/<slug>, /portfolio/category/<slug>) and
+// their retired slugs.
 // A retired slug only redirects once no live entry uses it; a retired slug that points at
 // another slug only redirects while that target is live, so a redirect never chains, loops
 // or lands on a missing page.
@@ -6,6 +7,7 @@ export type SlugRoutes = { basePath: string; retired: Readonly<Record<string, st
 
 export const PACKAGE_ROUTES: SlugRoutes = { basePath: "/packages", retired: { tutor: "/packages" } };
 export const SERVICE_ROUTES: SlugRoutes = { basePath: "/services", retired: { "packaging-design": "/services/book-cover-design" } };
+export const CATEGORY_ROUTES: SlugRoutes = { basePath: "/portfolio/category", retired: { "packaging-design": "/portfolio/category/book-cover-design" } };
 
 export type SlugRoute =
   | { kind: "page"; slug: string }

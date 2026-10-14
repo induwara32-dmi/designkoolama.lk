@@ -120,19 +120,20 @@ describe("PublicContentService", () => {
       expect.objectContaining({
         where: {
           isActive: true,
-          status: "PUBLISHED",
+          status: { not: "ARCHIVED" },
           publishedSnapshot: { not: expect.any(Object) },
         },
         orderBy: { displayOrder: "asc" },
-        select: { publishedSnapshot: true, updatedAt: true },
+        select: { slug: true, name: true, publishedSnapshot: true, updatedAt: true },
       }),
     );
   });
   it("aggregates ordered images from published projects in the requested category", async () => {
     (
-      prisma as { portfolioCategory: { findFirst: jest.Mock } }
-    ).portfolioCategory.findFirst.mockResolvedValue({
-      id: "category",
+      prisma as { portfolioCategory: { findMany: jest.Mock } }
+    ).portfolioCategory.findMany.mockResolvedValue([{
+      slug: "branding-and-identity",
+      name: "Branding & Identity",
       publishedSnapshot: {
         slug: "branding-and-identity",
         name: "Branding & Identity",
@@ -140,7 +141,7 @@ describe("PublicContentService", () => {
           {displayOrder:0,altText:"Category image",caption:"Category caption",media:{id:"image-1",altText:"Media alt",caption:null}},
         ],
       },
-    });
+    }]);
     const result = await service.portfolioCategory("branding-and-identity", {
       page: 1,
       limit: 9,
@@ -152,10 +153,26 @@ describe("PublicContentService", () => {
   });
   it("returns 404 for an unpublished category slug", async () => {
     (
-      prisma as { portfolioCategory: { findFirst: jest.Mock } }
-    ).portfolioCategory.findFirst.mockResolvedValue(null);
+      prisma as { portfolioCategory: { findMany: jest.Mock } }
+    ).portfolioCategory.findMany.mockResolvedValue([]);
     await expect(
       service.portfolioCategory("missing", { page: 1, limit: 9 }),
     ).rejects.toBeInstanceOf(NotFoundException);
+  });
+  it("resolves categories by their published slug for every snapshot shape", async () => {
+    (
+      prisma as { portfolioCategory: { findMany: jest.Mock } }
+    ).portfolioCategory.findMany.mockResolvedValue([
+      // a slug change saved as a draft: the published slug stays live, the draft slug is not
+      { slug: "draft-slug", name: "Draft Name", publishedSnapshot: { slug: "live-slug", name: "Live Name", galleryImages: [] }, updatedAt: new Date() },
+      // a snapshot without slug and name keys: the row's values are used
+      { slug: "row-slug", name: "Row Name", publishedSnapshot: { cardTitle: "Card", galleryImages: [] }, updatedAt: new Date() },
+    ]);
+    await expect(service.portfolioCategory("live-slug", { page: 1, limit: 9 })).resolves.toMatchObject({ category: { slug: "live-slug", name: "Live Name" } });
+    await expect(service.portfolioCategory("draft-slug", { page: 1, limit: 9 })).rejects.toBeInstanceOf(NotFoundException);
+    await expect(service.portfolioCategory("row-slug", { page: 1, limit: 9 })).resolves.toMatchObject({ category: { slug: "row-slug", name: "Row Name", cardTitle: "Card" } });
+    await expect(service.categoryLatestImages("draft-slug", { limit: 3 })).resolves.toEqual({ items: [] });
+    const listed = await service.portfolioCategories();
+    expect(listed.map((item) => [item.slug, item.name])).toEqual([["live-slug", "Live Name"], ["row-slug", "Row Name"]]);
   });
 });

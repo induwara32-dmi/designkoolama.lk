@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { ContentStatus, MediaKind, Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import type { LatestImagesQueryDto, PackageQueryDto, PortfolioQueryDto } from "./public-content.dto";
-import { publishedServiceField, visibleServiceWhere } from "./published-service";
+import { publishedField, publishedServiceField, visibleCategoryWhere, visibleServiceWhere } from "./published-service";
 const stringValue = (value: unknown) =>
   typeof value === "string" || typeof value === "number" ? String(value) : "";
 const featureLabel = (value: unknown) =>
@@ -178,38 +178,40 @@ export class PublicContentService {
       },
     };
   }
-  async portfolioCategories() {
-    const rows = await this.prisma.portfolioCategory.findMany({
-      where: {
-        isActive: true,
-        status: ContentStatus.PUBLISHED,
-        publishedSnapshot: { not: Prisma.DbNull },
-      },
+  private visibleCategories() {
+    return this.prisma.portfolioCategory.findMany({
+      where: visibleCategoryWhere,
       orderBy: { displayOrder: "asc" },
-      select: { publishedSnapshot: true, updatedAt: true },
+      select: { slug: true, name: true, publishedSnapshot: true, updatedAt: true },
     });
-    return rows.map((row) => ({
+  }
+  // The published category (snapshot), with its published slug and name: the snapshot's, else the
+  // row's, so a snapshot without those keys still has them.
+  private categoryView(row: { slug: string; name: string; publishedSnapshot: unknown }) {
+    return {
       ...(row.publishedSnapshot as Record<string, unknown>),
-      updatedAt: row.updatedAt,
-    }));
+      slug: publishedField(row, "slug") ?? row.slug,
+      name: publishedField(row, "name") ?? row.name,
+    };
+  }
+  // Matched on the PUBLISHED slug, in memory, so saving a slug change as a draft neither hides nor
+  // moves the live category page before Publish.
+  private async publishedCategory(slug: string) {
+    return (await this.visibleCategories()).find((row) => (publishedField(row, "slug") ?? row.slug) === slug);
+  }
+  async portfolioCategories() {
+    const rows = await this.visibleCategories();
+    return rows.map((row) => ({ ...this.categoryView(row), updatedAt: row.updatedAt }));
   }
   async portfolioCategory(slug: string, query: PortfolioQueryDto) {
-    const category = await this.prisma.portfolioCategory.findFirst({
-      where: {
-        slug,
-        isActive: true,
-        status: ContentStatus.PUBLISHED,
-        publishedSnapshot: { not: Prisma.DbNull },
-      },
-      select: { id: true, publishedSnapshot: true },
-    });
+    const category = await this.publishedCategory(slug);
     if (!category) throw new NotFoundException("Portfolio category not found");
     const snapshot=category.publishedSnapshot as {galleryImages?:Array<{displayOrder:number;altText?:string|null;caption?:string|null;media:Record<string,unknown>}>};
     const gallery=(snapshot.galleryImages??[]).map(item=>({displayOrder:item.displayOrder,media:{...item.media,altText:item.altText||item.media.altText,caption:item.caption??item.media.caption}}));
     const total = gallery.length;
     const items = gallery.slice((query.page - 1) * query.limit, query.page * query.limit);
     return {
-      category: category.publishedSnapshot,
+      category: this.categoryView(category),
       items,
       pagination: { page: query.page, limit: query.limit, total, pages: Math.ceil(total / query.limit) },
     };
@@ -218,10 +220,7 @@ export class PublicContentService {
   // page shows). Gallery rows are re-created on every category save, so their own createdAt is
   // not the date an image was added; the media asset's upload time is the stable signal.
   async categoryLatestImages(slug: string, query: LatestImagesQueryDto) {
-    const category = await this.prisma.portfolioCategory.findFirst({
-      where: { slug, isActive: true, status: ContentStatus.PUBLISHED, publishedSnapshot: { not: Prisma.DbNull } },
-      select: { publishedSnapshot: true },
-    });
+    const category = await this.publishedCategory(slug);
     if (!category) return { items: [] };
     const snapshot = category.publishedSnapshot as { galleryImages?: Array<{ altText?: string | null; caption?: string | null; media?: { id?: unknown; url?: unknown; secureUrl?: unknown; altText?: unknown; caption?: unknown } }> };
     const gallery = (snapshot.galleryImages ?? []).filter((item) => typeof item.media?.id === "string");

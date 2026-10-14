@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { CategoryGallery } from "@/components/portfolio/category-gallery";
 import { JsonLd } from "@/components/seo/json-ld";
 import { ContentUnavailable } from "@/components/feedback/content-unavailable";
 import { breadcrumbJsonLd } from "@/lib/structured-data";
-import { loadPortfolioCategory } from "@/services/public-content";
+import { loadPortfolioCategories, loadPortfolioCategory } from "@/services/public-content";
+import { CATEGORY_ROUTES, resolveSlugRoute } from "@/lib/slug-routes";
 import { categoryCardTitle } from "@/content/portfolio";
 
 type Props = {
@@ -49,7 +50,13 @@ export default async function Page({ params, searchParams }: Props) {
   try {
     result = await loadPortfolioCategory(slug, page);
   } catch (error) {
-    if (error instanceof Error && error.message === "NOT_FOUND") notFound();
+    if (error instanceof Error && error.message === "NOT_FOUND") {
+      // Page-level fallback for the middleware redirect (renamed or uppercase slugs).
+      const live = await loadPortfolioCategories().then((items) => items.map((item) => item.slug)).catch(() => [] as string[]);
+      const route = resolveSlugRoute(slug, live, CATEGORY_ROUTES);
+      if (route.kind === "redirect") permanentRedirect(route.to);
+      notFound();
+    }
     return <ContentUnavailable />;
   }
   return (

@@ -3,7 +3,7 @@ export type PortfolioCategory =
   | "Branding & Identity"
   | "Print Advertising"
   | "Social Media Design"
-  | "Packaging Design"
+  | "Book Cover Design"
   | "Merchandise Design"
   | "3D Design";
 export type PortfolioMedia = {
@@ -120,7 +120,7 @@ export const portfolioProjects: PortfolioProject[] = [
     slug: "orbit-social-kit",
     title: "Orbit Social Kit",
     client: "Orbit Labs",
-    category: "Packaging Design",
+    category: "Book Cover Design",
     service: "Packaging and campaign design",
     date: "December 2025",
     description:

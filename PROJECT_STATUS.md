@@ -138,6 +138,7 @@ Phase 4 — Public Services and Packages (complete)
 
 - Services: `/services/brand-identity`, `/services/print-advertising`, `/services/social-media-design`, `/services/book-cover-design` (the retired `/services/packaging-design` permanently redirects there once the renamed service is published), `/services/merchandise-design`, and `/services/3d-design`.
 - Packages: `/packages` and `/packages/<category-slug>`, resolved from the live package categories (currently `videography`, `branding` and `photography`). The retired `/packages/tutor` permanently redirects (308) to `/packages` once no category uses that slug.
+- Portfolio categories: `/portfolio/category/<slug>`, resolved from the PUBLISHED category slug (saving a slug change as a draft neither hides nor moves the live page before Publish). The retired `/portfolio/category/packaging-design` permanently redirects (308) to `/portfolio/category/book-cover-design` once that category is live and no category uses the old slug.
 - Preserved all completed Phase 1–3 public routes and behavior.
 
 ## Service architecture
